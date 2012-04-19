@@ -114,27 +114,71 @@ pulp.entities = [
 
 			console.log( 'pulp.entities.create', req );
 
+			var target = 0
+			, current = 0
+			, results = []
+			, own_on_success
+			, own_on_complete
+			, own_on_error
+			, a = 0, alen = 0, aitem;
+
 			var own_on_success = function( res ) {
+
+				current += 1;
+
 				if ( 'function' == typeof req.on_success ) {
-					req.on_success( req, res );
+					req.on_success( req, res, current );
 				}
+
+				results.push( res );
+
+				if ( current === target ) {
+					own_on_complete( res, current );
+				}
+
 			};
 
-			var own_on_complete = function( res ) {
+			var own_on_complete = function( res, count ) {
+
 				if ( 'function' == typeof req.on_complete ) {
-					req.on_complete( req, res );
+					req.on_complete( req, results, count );
 				}
+
 			};
 
 			var own_on_error = function( res ) {
+
+				current += 1;
+
 				if ( 'function' == typeof req.on_error ) {
-					req.on_error( req, res );
+					req.on_error( req, res, current );
 				}
+
+				results.push( res );
+
+				if ( current === target ) {
+					own_on_complete( res, target );
+				}
+
 			};
 
-			pulp.database.node.create( { type: { type: this.singular, request: req }, request: req }, own_on_success, own_on_error );
+			if ( Array.isArray( req.data ) ) {
 
+				var a = 0, alen = req.len, aitem;
+				target = alen;
+
+				for( a = 0; a < alen; a += 1 ) {
+					pulp.database.node.create( { type: this.singular, request: req }, own_on_success, own_on_error );
+				}
+
+			} else {
+
+				pulp.database.node.create( { type: this.singular, request: req }, own_on_success, own_on_error );
+
+			}
+		
 			return true;
+
 
 		}
 	, destroy: function( req ) {
@@ -377,27 +421,71 @@ pulp.entities = [
 
 			console.log( 'pulp.entities.create', req );
 
+			var target = 0
+			, current = 0
+			, results = []
+			, own_on_success
+			, own_on_complete
+			, own_on_error
+			, a = 0, alen = 0, aitem;
+
 			var own_on_success = function( res ) {
+
+				current += 1;
+
 				if ( 'function' == typeof req.on_success ) {
-					req.on_success( req, res );
+					req.on_success( req, res, current );
 				}
+
+				results.push( res );
+
+				if ( current === target ) {
+					own_on_complete( res, current );
+				}
+
 			};
 
-			var own_on_complete = function( res ) {
+			var own_on_complete = function( res, count ) {
+
 				if ( 'function' == typeof req.on_complete ) {
-					req.on_complete( req, res );
+					req.on_complete( req, results, count );
 				}
+
 			};
 
 			var own_on_error = function( res ) {
+
+				current += 1;
+
 				if ( 'function' == typeof req.on_error ) {
-					req.on_error( req, res );
+					req.on_error( req, res, current );
 				}
+
+				results.push( res );
+
+				if ( current === target ) {
+					own_on_complete( res, target );
+				}
+
 			};
 
-			pulp.database.node.create( { type: this.singular, request: req }, own_on_success, own_on_error );
-			
+			if ( Array.isArray( req.data ) ) {
+
+				var a = 0, alen = req.len, aitem;
+				target = alen;
+
+				for( a = 0; a < alen; a += 1 ) {
+					pulp.database.node.create( { type: this.singular, request: req }, own_on_success, own_on_error );
+				}
+
+			} else {
+
+				pulp.database.node.create( { type: this.singular, request: req }, own_on_success, own_on_error );
+
+			}
+		
 			return true;
+
 
 		}
 	, destroy: function( req ) {
@@ -642,26 +730,69 @@ pulp.entities = [
 
 			console.log( 'pulp.entities.create', req );
 
+			var target = 0
+			, current = 0
+			, results = []
+			, own_on_success
+			, own_on_complete
+			, own_on_error
+			, a = 0, alen = 0, aitem;
+
 			var own_on_success = function( res ) {
+
+				current += 1;
+
 				if ( 'function' == typeof req.on_success ) {
-					req.on_success( req, res );
+					req.on_success( req, res, current );
 				}
+
+				results.push( res );
+
+				if ( current === target ) {
+					own_on_complete( res, current );
+				}
+
 			};
 
-			var own_on_complete = function( res ) {
+			var own_on_complete = function( res, count ) {
+
 				if ( 'function' == typeof req.on_complete ) {
-					req.on_complete( req, res );
+					req.on_complete( req, results, count );
 				}
+
 			};
 
 			var own_on_error = function( res ) {
+
+				current += 1;
+
 				if ( 'function' == typeof req.on_error ) {
-					req.on_error( req, res );
+					req.on_error( req, res, current );
 				}
+
+				results.push( res );
+
+				if ( current === target ) {
+					own_on_complete( res, target );
+				}
+
 			};
 
-			pulp.database.node.create( { type: this.singular, request: req }, own_on_success, own_on_error );
-			
+			if ( Array.isArray( req.data ) ) {
+
+				var a = 0, alen = req.len, aitem;
+				target = alen;
+
+				for( a = 0; a < alen; a += 1 ) {
+					pulp.database.node.create( { type: this.singular, request: req }, own_on_success, own_on_error );
+				}
+
+			} else {
+
+				pulp.database.node.create( { type: this.singular, request: req }, own_on_success, own_on_error );
+
+			}
+		
 			return true;
 
 		}
@@ -905,26 +1036,69 @@ pulp.entities = [
 
 			console.log( 'pulp.entities.create', req );
 
+			var target = 0
+			, current = 0
+			, results = []
+			, own_on_success
+			, own_on_complete
+			, own_on_error
+			, a = 0, alen = 0, aitem;
+
 			var own_on_success = function( res ) {
+
+				current += 1;
+
 				if ( 'function' == typeof req.on_success ) {
-					req.on_success( req, res );
+					req.on_success( req, res, current );
 				}
+
+				results.push( res );
+
+				if ( current === target ) {
+					own_on_complete( res, current );
+				}
+
 			};
 
-			var own_on_complete = function( res ) {
+			var own_on_complete = function( res, count ) {
+
 				if ( 'function' == typeof req.on_complete ) {
-					req.on_complete( req, res );
+					req.on_complete( req, results, count );
 				}
+
 			};
 
 			var own_on_error = function( res ) {
+
+				current += 1;
+
 				if ( 'function' == typeof req.on_error ) {
-					req.on_error( req, res );
+					req.on_error( req, res, current );
 				}
+
+				results.push( res );
+
+				if ( current === target ) {
+					own_on_complete( res, target );
+				}
+
 			};
 
-			pulp.database.node.create( { type: this.singular, request: req }, own_on_success, own_on_error );
-			
+			if ( Array.isArray( req.data ) ) {
+
+				var a = 0, alen = req.len, aitem;
+				target = alen;
+
+				for( a = 0; a < alen; a += 1 ) {
+					pulp.database.node.create( { type: this.singular, request: req }, own_on_success, own_on_error );
+				}
+
+			} else {
+
+				pulp.database.node.create( { type: this.singular, request: req }, own_on_success, own_on_error );
+
+			}
+		
 			return true;
 
 		}
