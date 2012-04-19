@@ -1,9 +1,59 @@
 /* pulp */
 
 var neo4j = require( 'neo4j' );
-var db = new neo4j.GraphDatabase( 'http://localhost:7474' );
+
 
 var pulp = {};
+
+/* Neo4J Database */
+
+pulp.db = new neo4j.GraphDatabase( 'http://localhost:7474' );
+
+/* Database API */
+
+pulp.database = {};
+
+pulp.database.node = {};
+
+pulp.database.node.create = function( req, obj ) {
+	console.log( 'pulp.database.node.create', req, obj );
+};
+
+pulp.database.node.destroy = function( req, obj ) {
+	console.log( 'pulp.database.node.destroy', req, obj );
+};
+
+pulp.database.node.update = function( req, obj ) {
+	console.log( 'pulp.database.node.update', req, obj );
+};
+
+pulp.database.node.read = function( req, obj ) {
+	console.log( 'pulp.database.node.read', req, obj );
+};
+
+
+pulp.database.relationship = {};
+
+pulp.database.relationship.create = function( req, obj ) {
+	console.log( 'pulp.database.relationship.create', req, obj );
+};
+
+pulp.database.relationship.destroy = function( req, obj ) {
+	console.log( 'pulp.database.relationship.destroy', req, obj );
+};
+
+pulp.database.relationship.update = function( req, obj ) {
+	console.log( 'pulp.database.relationship.update', req, obj );
+};
+
+pulp.database.relationship.read = function( req, obj ) {
+	console.log( 'pulp.database.relationship.read', req, obj );
+};
+
+
+
+
+
 pulp.actions = [ 'add', 'remove' ];
 pulp.entities = [
 	{ singular: 'person'
@@ -12,26 +62,99 @@ pulp.entities = [
 		{ id: 'string'
 		, display: 'string'
 		}
-	, validation: function( obj ) {
-			console.log( 'pulp.entities validation', obj );
+	, validation: function( req ) {
+			console.log( 'pulp.entities validation', req );
+			var own_on_success = function( res ) {
+				if ( 'function' == typeof req.on_success ) {
+					req.on_success( req, res );
+				}
+			};
+			var own_on_complete = function( res ) {
+				if ( 'function' == typeof req.on_complete ) {
+					req.on_complete( req, res );
+				}
+			};
+			var own_on_error = function( res ) {
+				if ( 'function' == typeof req.on_error ) {
+					req.on_error( req, res );
+				}
+			};
 			return true;
 		}
-	} ,
-	, create: function( obj ) {
-			console.log( 'pulp.entities.create', obj );
+	, create: function( req ) {
+			console.log( 'pulp.entities.create', req );
+			var own_on_success = function( res ) {
+				if ( 'function' == typeof req.on_success ) {
+					req.on_success( req, res );
+				}
+			};
+			var own_on_complete = function( res ) {
+				if ( 'function' == typeof req.on_complete ) {
+					req.on_complete( req, res );
+				}
+			};
+			var own_on_error = function( res ) {
+				if ( 'function' == typeof req.on_error ) {
+					req.on_error( req, res );
+				}
+			};
 			return true;
 		}
-	, remove: function( obj ) {
-			console.log( 'pulp.entities.remove', obj );
+	, destroy: function( req ) {
+			console.log( 'pulp.entities.destroy', req );
+			var own_on_success = function( res ) {
+				if ( 'function' == typeof req.on_success ) {
+					req.on_success( req, res );
+				}
+			};
+			var own_on_complete = function( res ) {
+				if ( 'function' == typeof req.on_complete ) {
+					req.on_complete( req, res );
+				}
+			};
+			var own_on_error = function( res ) {
+				if ( 'function' == typeof req.on_error ) {
+					req.on_error( req, res );
+				}
+			};
 			return true;
 		}
-	} ,
-	, update: function( obj ) {
-			console.log( 'pulp.entities.update', obj );
+	, update: function( req ) {
+			console.log( 'pulp.entities.update', req );
+			var own_on_success = function( res ) {
+				if ( 'function' == typeof req.on_success ) {
+					req.on_success( req, res );
+				}
+			};
+			var own_on_complete = function( res ) {
+				if ( 'function' == typeof req.on_complete ) {
+					req.on_complete( req, res );
+				}
+			};
+			var own_on_error = function( res ) {
+				if ( 'function' == typeof req.on_error ) {
+					req.on_error( req, res );
+				}
+			};
 			return true;
 		}
-	, read: function( obj ) {
-			console.log( 'pulp.entities.read', obj );
+	, read: function( req ) {
+			console.log( 'pulp.entities.read', req );
+			var own_on_success = function( res ) {
+				if ( 'function' == typeof req.on_success ) {
+					req.on_success( req, res );
+				}
+			};
+			var own_on_complete = function( res ) {
+				if ( 'function' == typeof req.on_complete ) {
+					req.on_complete( req, res );
+				}
+			};
+			var own_on_error = function( res ) {
+				if ( 'function' == typeof req.on_error ) {
+					req.on_error( req, res );
+				}
+			};
 			return true;
 		}
 	} ,
@@ -41,51 +164,203 @@ pulp.entities = [
 		{ id: 'string'
 		, display: 'string'
 		}
-	, validation: function( obj ) {
-			console.log( 'pulp.entities validation', obj );
+	, validation: function( req ) {
+			console.log( 'pulp.entities validation', req );
+			var own_on_success = function( res ) {
+				if ( 'function' == typeof req.on_success ) {
+					req.on_success( req, res );
+				}
+			};
+			var own_on_complete = function( res ) {
+				if ( 'function' == typeof req.on_complete ) {
+					req.on_complete( req, res );
+				}
+			};
+			var own_on_error = function( res ) {
+				if ( 'function' == typeof req.on_error ) {
+					req.on_error( req, res );
+				}
+			};
 			return true;
 		}
-	, create: function( obj ) {
-			console.log( 'pulp.entities.create', obj );
+	, create: function( req ) {
+			console.log( 'pulp.entities.create', req );
+			var own_on_success = function( res ) {
+				if ( 'function' == typeof req.on_success ) {
+					req.on_success( req, res );
+				}
+			};
+			var own_on_complete = function( res ) {
+				if ( 'function' == typeof req.on_complete ) {
+					req.on_complete( req, res );
+				}
+			};
+			var own_on_error = function( res ) {
+				if ( 'function' == typeof req.on_error ) {
+					req.on_error( req, res );
+				}
+			};
 			return true;
 		}
-	, remove: function( obj ) {
-			console.log( 'pulp.entities.remove', obj );
+	, destroy: function( req ) {
+			console.log( 'pulp.entities.destroy', req );
+			var own_on_success = function( res ) {
+				if ( 'function' == typeof req.on_success ) {
+					req.on_success( req, res );
+				}
+			};
+			var own_on_complete = function( res ) {
+				if ( 'function' == typeof req.on_complete ) {
+					req.on_complete( req, res );
+				}
+			};
+			var own_on_error = function( res ) {
+				if ( 'function' == typeof req.on_error ) {
+					req.on_error( req, res );
+				}
+			};
 			return true;
 		}
-	, update: function( obj ) {
-			console.log( 'pulp.entities.update', obj );
+	, update: function( req ) {
+			console.log( 'pulp.entities.update', req );
+			var own_on_success = function( res ) {
+				if ( 'function' == typeof req.on_success ) {
+					req.on_success( req, res );
+				}
+			};
+			var own_on_complete = function( res ) {
+				if ( 'function' == typeof req.on_complete ) {
+					req.on_complete( req, res );
+				}
+			};
+			var own_on_error = function( res ) {
+				if ( 'function' == typeof req.on_error ) {
+					req.on_error( req, res );
+				}
+			};
 			return true;
 		}
-	, read: function( obj ) {
-			console.log( 'pulp.entities.read', obj );
+	, read: function( req ) {
+			console.log( 'pulp.entities.read', req );
+			var own_on_success = function( res ) {
+				if ( 'function' == typeof req.on_success ) {
+					req.on_success( req, res );
+				}
+			};
+			var own_on_complete = function( res ) {
+				if ( 'function' == typeof req.on_complete ) {
+					req.on_complete( req, res );
+				}
+			};
+			var own_on_error = function( res ) {
+				if ( 'function' == typeof req.on_error ) {
+					req.on_error( req, res );
+				}
+			};
 			return true;
 		}
 	} ,
-	{ singular: 'places'
+	{ singular: 'place'
 	, plural: 'places'
 	, model:
 		{ id: 'string'
 		, display: 'string'
+		, latitude: 'number'
+		, longitude: 'number'
 		}
-	, validation: function( obj ) {
-			console.log( 'pulp.entities validation', obj );
+	, validation: function( req ) {
+			console.log( 'pulp.entities validation', req );
+			var own_on_success = function( res ) {
+				if ( 'function' == typeof req.on_success ) {
+					req.on_success( req, res );
+				}
+			};
+			var own_on_complete = function( res ) {
+				if ( 'function' == typeof req.on_complete ) {
+					req.on_complete( req, res );
+				}
+			};
+			var own_on_error = function( res ) {
+				if ( 'function' == typeof req.on_error ) {
+					req.on_error( req, res );
+				}
+			};
 			return true;
 		}
-	, create: function( obj ) {
-			console.log( 'pulp.entities.create', obj );
+	, create: function( req ) {
+			console.log( 'pulp.entities.create', req );
+			var own_on_success = function( res ) {
+				if ( 'function' == typeof req.on_success ) {
+					req.on_success( req, res );
+				}
+			};
+			var own_on_complete = function( res ) {
+				if ( 'function' == typeof req.on_complete ) {
+					req.on_complete( req, res );
+				}
+			};
+			var own_on_error = function( res ) {
+				if ( 'function' == typeof req.on_error ) {
+					req.on_error( req, res );
+				}
+			};
 			return true;
 		}
-	, remove: function( obj ) {
-			console.log( 'pulp.entities.remove', obj );
+	, destroy: function( req ) {
+			console.log( 'pulp.entities.destroy', req );
+			var own_on_success = function( res ) {
+				if ( 'function' == typeof req.on_success ) {
+					req.on_success( req, res );
+				}
+			};
+			var own_on_complete = function( res ) {
+				if ( 'function' == typeof req.on_complete ) {
+					req.on_complete( req, res );
+				}
+			};
+			var own_on_error = function( res ) {
+				if ( 'function' == typeof req.on_error ) {
+					req.on_error( req, res );
+				}
+			};
 			return true;
 		}
-	, update: function( obj ) {
-			console.log( 'pulp.entities.update', obj );
+	, update: function( req ) {
+			console.log( 'pulp.entities.update', req );
+			var own_on_success = function( res ) {
+				if ( 'function' == typeof req.on_success ) {
+					req.on_success( req, res );
+				}
+			};
+			var own_on_complete = function( res ) {
+				if ( 'function' == typeof req.on_complete ) {
+					req.on_complete( req, res );
+				}
+			};
+			var own_on_error = function( res ) {
+				if ( 'function' == typeof req.on_error ) {
+					req.on_error( req, res );
+				}
+			};
 			return true;
 		}
-	, read: function( obj ) {
-			console.log( 'pulp.entities.read', obj );
+	, read: function( req ) {
+			console.log( 'pulp.entities.read', req );
+			var own_on_success = function( res ) {
+				if ( 'function' == typeof req.on_success ) {
+					req.on_success( req, res );
+				}
+			};
+			var own_on_complete = function( res ) {
+				if ( 'function' == typeof req.on_complete ) {
+					req.on_complete( req, res );
+				}
+			};
+			var own_on_error = function( res ) {
+				if ( 'function' == typeof req.on_error ) {
+					req.on_error( req, res );
+				}
+			};
 			return true;
 		}
 	} ,
@@ -95,24 +370,99 @@ pulp.entities = [
 		{ id: 'string'
 		, display: 'string'
 		}
-	, validation: function( obj ) {
-			console.log( 'pulp.entities validation', obj );
+	, validation: function( req ) {
+			console.log( 'pulp.entities validation', req );
+			var own_on_success = function( res ) {
+				if ( 'function' == typeof req.on_success ) {
+					req.on_success( req, res );
+				}
+			};
+			var own_on_complete = function( res ) {
+				if ( 'function' == typeof req.on_complete ) {
+					req.on_complete( req, res );
+				}
+			};
+			var own_on_error = function( res ) {
+				if ( 'function' == typeof req.on_error ) {
+					req.on_error( req, res );
+				}
+			};
 			return true;
 		}
-	, create: function( obj ) {
-			console.log( 'pulp.entities.create', obj );
+	, create: function( req ) {
+			console.log( 'pulp.entities.create', req );
+			var own_on_success = function( res ) {
+				if ( 'function' == typeof req.on_success ) {
+					req.on_success( req, res );
+				}
+			};
+			var own_on_complete = function( res ) {
+				if ( 'function' == typeof req.on_complete ) {
+					req.on_complete( req, res );
+				}
+			};
+			var own_on_error = function( res ) {
+				if ( 'function' == typeof req.on_error ) {
+					req.on_error( req, res );
+				}
+			};
 			return true;
 		}
-	, remove: function( obj ) {
-			console.log( 'pulp.entities.remove', obj );
+	, destroy: function( req ) {
+			console.log( 'pulp.entities.destroy', req );
+			var own_on_success = function( res ) {
+				if ( 'function' == typeof req.on_success ) {
+					req.on_success( req, res );
+				}
+			};
+			var own_on_complete = function( res ) {
+				if ( 'function' == typeof req.on_complete ) {
+					req.on_complete( req, res );
+				}
+			};
+			var own_on_error = function( res ) {
+				if ( 'function' == typeof req.on_error ) {
+					req.on_error( req, res );
+				}
+			};
 			return true;
 		}
-	, update: function( obj ) {
-			console.log( 'pulp.entities.update', obj );
+	, update: function( req ) {
+			console.log( 'pulp.entities.update', req );
+			var own_on_success = function( res ) {
+				if ( 'function' == typeof req.on_success ) {
+					req.on_success( req, res );
+				}
+			};
+			var own_on_complete = function( res ) {
+				if ( 'function' == typeof req.on_complete ) {
+					req.on_complete( req, res );
+				}
+			};
+			var own_on_error = function( res ) {
+				if ( 'function' == typeof req.on_error ) {
+					req.on_error( req, res );
+				}
+			};
 			return true;
 		}
-	, read: function( obj ) {
-			console.log( 'pulp.entities.read', obj );
+	, read: function( req ) {
+			console.log( 'pulp.entities.read', req );
+			var own_on_success = function( res ) {
+				if ( 'function' == typeof req.on_success ) {
+					req.on_success( req, res );
+				}
+			};
+			var own_on_complete = function( res ) {
+				if ( 'function' == typeof req.on_complete ) {
+					req.on_complete( req, res );
+				}
+			};
+			var own_on_error = function( res ) {
+				if ( 'function' == typeof req.on_error ) {
+					req.on_error( req, res );
+				}
+			};
 			return true;
 		}
 	} ,
@@ -122,24 +472,99 @@ pulp.entities = [
 		{ id: 'string'
 		, display: 'string'
 		}
-	, validation: function( obj ) {
-			console.log( 'pulp.entities validation', obj );
+	, validation: function( req ) {
+			console.log( 'pulp.entities validation', req );
+			var own_on_success = function( res ) {
+				if ( 'function' == typeof req.on_success ) {
+					req.on_success( req, res );
+				}
+			};
+			var own_on_complete = function( res ) {
+				if ( 'function' == typeof req.on_complete ) {
+					req.on_complete( req, res );
+				}
+			};
+			var own_on_error = function( res ) {
+				if ( 'function' == typeof req.on_error ) {
+					req.on_error( req, res );
+				}
+			};
 			return true;
 		}
-	, create: function( obj ) {
-			console.log( 'pulp.entities.create', obj );
+	, create: function( req ) {
+			console.log( 'pulp.entities.create', req );
+			var own_on_success = function( res ) {
+				if ( 'function' == typeof req.on_success ) {
+					req.on_success( req, res );
+				}
+			};
+			var own_on_complete = function( res ) {
+				if ( 'function' == typeof req.on_complete ) {
+					req.on_complete( req, res );
+				}
+			};
+			var own_on_error = function( res ) {
+				if ( 'function' == typeof req.on_error ) {
+					req.on_error( req, res );
+				}
+			};
 			return true;
 		}
-	, remove: function( obj ) {
-			console.log( 'pulp.entities.remove', obj );
+	, destroy: function( req ) {
+			console.log( 'pulp.entities.destroy', req );
+			var own_on_success = function( res ) {
+				if ( 'function' == typeof req.on_success ) {
+					req.on_success( req, res );
+				}
+			};
+			var own_on_complete = function( res ) {
+				if ( 'function' == typeof req.on_complete ) {
+					req.on_complete( req, res );
+				}
+			};
+			var own_on_error = function( res ) {
+				if ( 'function' == typeof req.on_error ) {
+					req.on_error( req, res );
+				}
+			};
 			return true;
 		}
-	, update: function( obj ) {
-			console.log( 'pulp.entities.update', obj );
+	, update: function( req ) {
+			console.log( 'pulp.entities.update', req );
+			var own_on_success = function( res ) {
+				if ( 'function' == typeof req.on_success ) {
+					req.on_success( req, res );
+				}
+			};
+			var own_on_complete = function( res ) {
+				if ( 'function' == typeof req.on_complete ) {
+					req.on_complete( req, res );
+				}
+			};
+			var own_on_error = function( res ) {
+				if ( 'function' == typeof req.on_error ) {
+					req.on_error( req, res );
+				}
+			};
 			return true;
 		}
-	, read: function( obj ) {
-			console.log( 'pulp.entities.read', obj );
+	, read: function( req ) {
+			console.log( 'pulp.entities.read', req );
+			var own_on_success = function( res ) {
+				if ( 'function' == typeof req.on_success ) {
+					req.on_success( req, res );
+				}
+			};
+			var own_on_complete = function( res ) {
+				if ( 'function' == typeof req.on_complete ) {
+					req.on_complete( req, res );
+				}
+			};
+			var own_on_error = function( res ) {
+				if ( 'function' == typeof req.on_error ) {
+					req.on_error( req, res );
+				}
+			};
 			return true;
 		}
 	}
