@@ -7,6 +7,8 @@ var Pulp = ( function() {
 
 	/* Neo4J Database */
 
+	var Private = {};
+
 	Private.db = new neo4j.GraphDatabase( 'http://localhost:7474' );
 
 	/* Database API */
@@ -1742,9 +1744,11 @@ var Pulp = ( function() {
 	};
 
 	var Public = function( req ) {
-		var relationships = ( ( 'undefined' !== typeof req.relationships ) ? req.relationships )
-		, attributes = ( ( 'undefined' !== typeof req.attributes ) ? req.attributes )
-		, nodes = ( ( 'undefined' !== typeof req.relationships ) ? req.nodes );
+		
+		var is_req =  ( 'undefined' !== typeof req && null !== req )
+		, relationships = ( ( is_req && 'undefined' !== typeof req.relationships ) ? req.relationships : null )
+		, attributes = ( ( is_req && 'undefined' !== typeof req.attributes ) ? req.attributes : null )
+		, nodes = ( ( is_req && 'undefined' !== typeof req.relationships ) ? req.nodes : null );
 	};
 
 	Public.prototype.create = function( req ) {
