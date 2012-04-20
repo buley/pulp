@@ -58,7 +58,7 @@ var Pulp = ( function() {
 		, plural: 'People'
 		, relationships:
 				[ { 'People':
-					[ 'MENTION': 
+					[ 'MENTION'
 					, 'FAMILY_WITH'
 					, 'REPORT_TO'
 					]
@@ -1742,9 +1742,9 @@ var Pulp = ( function() {
 	};
 
 	var Public = function( req ) {
-		var relationships = ( 'undefined' !== typeof req.relationships ) ? req.relationships
-		, attributes = ( 'undefined' !== typeof req.attributes ) ? req.attributes
-		, nodes = ( 'undefined' !== typeof req.relationships ) ? req.nodes;
+		var relationships = ( ( 'undefined' !== typeof req.relationships ) ? req.relationships )
+		, attributes = ( ( 'undefined' !== typeof req.attributes ) ? req.attributes )
+		, nodes = ( ( 'undefined' !== typeof req.relationships ) ? req.nodes );
 	};
 
 	Public.prototype.create = function( req ) {
