@@ -3,1720 +3,1789 @@
 var neo4j = require( 'neo4j' );
 
 
-var pulp = {};
+var Pulp = ( function() {
 
-/* Neo4J Database */
+	/* Neo4J Database */
 
-pulp.db = new neo4j.GraphDatabase( 'http://localhost:7474' );
+	Private.db = new neo4j.GraphDatabase( 'http://localhost:7474' );
 
-/* Database API */
+	/* Database API */
 
-pulp.database = {};
+	Private.database = {};
 
-pulp.database.node = {};
+	Private.database.node = {};
 
-pulp.database.node.create = function( req, obj ) {
-	console.log( 'pulp.database.node.create', req, obj );
-};
+	Private.database.node.create = function( req ) {
+		console.log( 'Private.database.node.create', req );
+	};
 
-pulp.database.node.destroy = function( req, obj ) {
-	console.log( 'pulp.database.node.destroy', req, obj );
-};
+	Private.database.node.destroy = function( req ) {
+		console.log( 'Private.database.node.destroy', req );
+	};
 
-pulp.database.node.update = function( req, obj ) {
-	console.log( 'pulp.database.node.update', req, obj );
-};
+	Private.database.node.update = function( req ) {
+		console.log( 'Private.database.node.update', req );
+	};
 
-pulp.database.node.read = function( req, obj ) {
-	console.log( 'pulp.database.node.read', req, obj );
-};
-
-
-pulp.database.relationship = {};
-
-pulp.database.relationship.create = function( req, obj ) {
-	console.log( 'pulp.database.relationship.create', req, obj );
-};
-
-pulp.database.relationship.destroy = function( req, obj ) {
-	console.log( 'pulp.database.relationship.destroy', req, obj );
-};
-
-pulp.database.relationship.update = function( req, obj ) {
-	console.log( 'pulp.database.relationship.update', req, obj );
-};
-
-pulp.database.relationship.read = function( req, obj ) {
-	console.log( 'pulp.database.relationship.read', req, obj );
-};
+	Private.database.node.read = function( req ) {
+		console.log( 'Private.database.node.read', req );
+	};
 
 
+	Private.database.relationship = {};
+
+	Private.database.relationship.create = function( req ) {
+		console.log( 'Private.database.relationship.create', req );
+	};
+
+	Private.database.relationship.destroy = function( req ) {
+		console.log( 'Private.database.relationship.destroy', req );
+	};
+
+	Private.database.relationship.update = function( req ) {
+		console.log( 'Private.database.relationship.update', req );
+	};
+
+	Private.database.relationship.read = function( req ) {
+		console.log( 'Private.database.relationship.read', req );
+	};
 
 
+	Private.actions = [ 'create', 'read', 'update', 'destroy', 'validate' ];
 
-pulp.actions = [ 'create', 'read', 'update', 'destroy', 'validate' ];
+	Private.entities = [
+		{ singular: 'Person'
+		, plural: 'People'
+		, relationships:
+				[ { 'People':
+					[ 'MENTION': 
+					, 'FAMILY_WITH'
+					, 'REPORT_TO'
+					]
+				, 'Place':
+					[ 'MENTION'
+					, 'RESIDE'
+					]
+				, 'Organization':
+					[ 'INVEST_IN'
+					, 'WORK_FOR'
+					, 'MENTION'
+					, 'CREATE'
+					]
+				, 'Idea':
+					[ 'INVEST_IN'
+					, 'WORK_FOR'
+					, 'MENTION'
+					, 'CREATE'
+					]
+				, 'Thing':
+					[ 'MENTION'
+					, 'OWN'
+					, 'CREATE'
+					]
+				} ]
+		, model:
+			{ id: 'string'
+			, display: 'string'
+			}
+		, validate: function( req ) {
+				console.log( 'Private.entities validation', req );
+				var own_on_success = function( res ) {
+					if ( 'function' == typeof req.on_success ) {
+						req.on_success( req, res );
+					}
+				};
+				var own_on_complete = function( res ) {
+					if ( 'function' == typeof req.on_complete ) {
+						req.on_complete( req, res );
+					}
+				};
+				var own_on_error = function( res ) {
+					if ( 'function' == typeof req.on_error ) {
+						req.on_error( req, res );
+					}
+				};
+				return true;
+			}
+		, create: function( req ) {
 
-pulp.entities = [
-	{ singular: 'Person'
-	, plural: 'People'
-	, relationships:
-			[ { 'People':
-				[ 'MENTION': 
-				, 'FAMILY_WITH'
-				, 'REPORT_TO'
-				]
-			, 'Place':
-				[ 'MENTION'
-				, 'RESIDE'
-				]
-			, 'Organization':
-				[ 'INVEST_IN'
-				, 'WORK_FOR'
-				, 'MENTION'
-				, 'CREATE'
-				]
-			, 'Idea':
-				[ 'INVEST_IN'
-				, 'WORK_FOR'
-				, 'MENTION'
-				, 'CREATE'
-				]
-			, 'Thing':
-				[ 'MENTION'
-				, 'OWN'
-				, 'CREATE'
-				]
-			]
-	, model:
-		{ id: 'string'
-		, display: 'string'
-		}
-	, validate: function( req ) {
-			console.log( 'pulp.entities validation', req );
-			var own_on_success = function( res ) {
-				if ( 'function' == typeof req.on_success ) {
-					req.on_success( req, res );
+				console.log( 'Private.entities.create', req );
+
+				var target = 0
+				, current = 0
+				, results = []
+				, own_on_success
+				, own_on_complete
+				, own_on_error
+				, a = 0, alen = 0, aitem;
+
+				var own_on_success = function( res ) {
+
+					current += 1;
+
+					if ( 'function' == typeof req.on_success ) {
+						req.on_success( req, res, current );
+					}
+
+					results.push( res );
+
+					if ( current === target ) {
+						own_on_complete( res, current );
+					}
+
+				};
+
+				var own_on_complete = function( res, count ) {
+
+					if ( 'function' == typeof req.on_complete ) {
+						req.on_complete( req, results, count );
+					}
+
+				};
+
+				var own_on_error = function( res ) {
+
+					current += 1;
+
+					if ( 'function' == typeof req.on_error ) {
+						req.on_error( req, res, current );
+					}
+
+					results.push( res );
+
+					if ( current === target ) {
+						own_on_complete( res, target );
+					}
+
+				};
+
+				if ( Array.isArray( req.data ) ) {
+
+					var a = 0, alen = req.len, aitem;
+					target = alen;
+
+					for( a = 0; a < alen; a += 1 ) {
+						Private.database.node.create( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					}
+
+				} else {
+
+					Private.database.node.create( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+
 				}
-			};
-			var own_on_complete = function( res ) {
-				if ( 'function' == typeof req.on_complete ) {
-					req.on_complete( req, res );
-				}
-			};
-			var own_on_error = function( res ) {
-				if ( 'function' == typeof req.on_error ) {
-					req.on_error( req, res );
-				}
-			};
-			return true;
-		}
-	, create: function( req ) {
+			
+				return true;
 
-			console.log( 'pulp.entities.create', req );
-
-			var target = 0
-			, current = 0
-			, results = []
-			, own_on_success
-			, own_on_complete
-			, own_on_error
-			, a = 0, alen = 0, aitem;
-
-			var own_on_success = function( res ) {
-
-				current += 1;
-
-				if ( 'function' == typeof req.on_success ) {
-					req.on_success( req, res, current );
-				}
-
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, current );
-				}
-
-			};
-
-			var own_on_complete = function( res, count ) {
-
-				if ( 'function' == typeof req.on_complete ) {
-					req.on_complete( req, results, count );
-				}
-
-			};
-
-			var own_on_error = function( res ) {
-
-				current += 1;
-
-				if ( 'function' == typeof req.on_error ) {
-					req.on_error( req, res, current );
-				}
-
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, target );
-				}
-
-			};
-
-			if ( Array.isArray( req.data ) ) {
-
-				var a = 0, alen = req.len, aitem;
-				target = alen;
-
-				for( a = 0; a < alen; a += 1 ) {
-					pulp.database.node.create( { type: this.singular, request: req }, own_on_success, own_on_error );
-				}
-
-			} else {
-
-				pulp.database.node.create( { type: this.singular, request: req }, own_on_success, own_on_error );
 
 			}
+		, destroy: function( req ) {
+
+				console.log( 'Private.entities.destroy', req );
+
+				var target = 0
+				, current = 0
+				, results = []
+				, own_on_success
+				, own_on_complete
+				, own_on_error
+				, a = 0, alen = 0, aitem;
+
+				var own_on_success = function( res ) {
+
+					current += 1;
+
+					if ( 'function' == typeof req.on_success ) {
+						req.on_success( req, res, current );
+					}
+
+					results.push( res );
+
+					if ( current === target ) {
+						own_on_complete( res, current );
+					}
+
+				};
+
+				var own_on_complete = function( res, count ) {
+
+					if ( 'function' == typeof req.on_complete ) {
+						req.on_complete( req, results, count );
+					}
+
+				};
+
+				var own_on_error = function( res ) {
+
+					current += 1;
+
+					if ( 'function' == typeof req.on_error ) {
+						req.on_error( req, res, current );
+					}
+
+					results.push( res );
+
+					if ( current === target ) {
+						own_on_complete( res, target );
+					}
+
+				};
+
+				if ( Array.isArray( req.data ) ) {
+
+					var a = 0, alen = req.len, aitem;
+					target = alen;
+
+					for( a = 0; a < alen; a += 1 ) {
+						Private.database.node.destroy( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					}
+
+				} else {
+
+					Private.database.node.destroy( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+
+				}
+
+				return true;
+
+			}
+		, update: function( req ) {
+
+				console.log( 'Private.entities.update', req );
+
+				var target = 0
+				, current = 0
+				, results = []
+				, own_on_success
+				, own_on_complete
+				, own_on_error
+				, a = 0, alen = 0, aitem;
+
+				var own_on_success = function( res ) {
+
+					current += 1;
+
+					if ( 'function' == typeof req.on_success ) {
+						req.on_success( req, res, current );
+					}
+
+					results.push( res );
+
+					if ( current === target ) {
+						own_on_complete( res, current );
+					}
+
+				};
+
+				var own_on_complete = function( res, count ) {
+
+					if ( 'function' == typeof req.on_complete ) {
+						req.on_complete( req, results, count );
+					}
+
+				};
+
+				var own_on_error = function( res ) {
+
+					current += 1;
+
+					if ( 'function' == typeof req.on_error ) {
+						req.on_error( req, res, current );
+					}
+
+					results.push( res );
+
+					if ( current === target ) {
+						own_on_complete( res, target );
+					}
+
+				};
+
+				if ( Array.isArray( req.data ) ) {
+
+					var a = 0, alen = req.len, aitem;
+					target = alen;
+
+					for( a = 0; a < alen; a += 1 ) {
+						Private.database.node.update( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					}
+
+				} else {
+
+					Private.database.node.update( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+
+				}
 		
-			return true;
-
-
-		}
-	, destroy: function( req ) {
-
-			console.log( 'pulp.entities.destroy', req );
-
-			var target = 0
-			, current = 0
-			, results = []
-			, own_on_success
-			, own_on_complete
-			, own_on_error
-			, a = 0, alen = 0, aitem;
-
-			var own_on_success = function( res ) {
-
-				current += 1;
-
-				if ( 'function' == typeof req.on_success ) {
-					req.on_success( req, res, current );
-				}
-
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, current );
-				}
-
-			};
-
-			var own_on_complete = function( res, count ) {
-
-				if ( 'function' == typeof req.on_complete ) {
-					req.on_complete( req, results, count );
-				}
-
-			};
-
-			var own_on_error = function( res ) {
-
-				current += 1;
-
-				if ( 'function' == typeof req.on_error ) {
-					req.on_error( req, res, current );
-				}
-
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, target );
-				}
-
-			};
-
-			if ( Array.isArray( req.data ) ) {
-
-				var a = 0, alen = req.len, aitem;
-				target = alen;
-
-				for( a = 0; a < alen; a += 1 ) {
-					pulp.database.node.destroy( { type: this.singular, request: req }, own_on_success, own_on_error );
-				}
-
-			} else {
-
-				pulp.database.node.destroy( { type: this.singular, request: req }, own_on_success, own_on_error );
+				return true;
 
 			}
+		, read: function( req ) {
 
-			return true;
+				console.log( 'Private.entities.read', req );
 
-		}
-	, update: function( req ) {
+				var target = 0
+				, current = 0
+				, results = []
+				, own_on_success
+				, own_on_complete
+				, own_on_error
+				, a = 0, alen = 0, aitem;
 
-			console.log( 'pulp.entities.update', req );
+				var own_on_success = function( res ) {
 
-			var target = 0
-			, current = 0
-			, results = []
-			, own_on_success
-			, own_on_complete
-			, own_on_error
-			, a = 0, alen = 0, aitem;
+					current += 1;
 
-			var own_on_success = function( res ) {
+					if ( 'function' == typeof req.on_success ) {
+						req.on_success( req, res, current );
+					}
 
-				current += 1;
+					results.push( res );
 
-				if ( 'function' == typeof req.on_success ) {
-					req.on_success( req, res, current );
-				}
+					if ( current === target ) {
+						own_on_complete( res, current );
+					}
 
-				results.push( res );
+				};
 
-				if ( current === target ) {
-					own_on_complete( res, current );
-				}
+				var own_on_complete = function( res, count ) {
 
-			};
+					if ( 'function' == typeof req.on_complete ) {
+						req.on_complete( req, results, count );
+					}
 
-			var own_on_complete = function( res, count ) {
+				};
 
-				if ( 'function' == typeof req.on_complete ) {
-					req.on_complete( req, results, count );
-				}
+				var own_on_error = function( res ) {
 
-			};
+					current += 1;
 
-			var own_on_error = function( res ) {
+					if ( 'function' == typeof req.on_error ) {
+						req.on_error( req, res, current );
+					}
 
-				current += 1;
+					results.push( res );
 
-				if ( 'function' == typeof req.on_error ) {
-					req.on_error( req, res, current );
-				}
+					if ( current === target ) {
+						own_on_complete( res, target );
+					}
 
-				results.push( res );
+				};
 
-				if ( current === target ) {
-					own_on_complete( res, target );
-				}
+				if ( Array.isArray( req.data ) ) {
 
-			};
+					var a = 0, alen = req.len, aitem;
+					target = alen;
 
-			if ( Array.isArray( req.data ) ) {
+					for( a = 0; a < alen; a += 1 ) {
+						Private.database.node.read( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					}
 
-				var a = 0, alen = req.len, aitem;
-				target = alen;
-
-				for( a = 0; a < alen; a += 1 ) {
-					pulp.database.node.update( { type: this.singular, request: req }, own_on_success, own_on_error );
-				}
-
-			} else {
-
-				pulp.database.node.update( { type: this.singular, request: req }, own_on_success, own_on_error );
-
-			}
-	
-			return true;
-
-		}
-	, read: function( req ) {
-
-			console.log( 'pulp.entities.read', req );
-
-			var target = 0
-			, current = 0
-			, results = []
-			, own_on_success
-			, own_on_complete
-			, own_on_error
-			, a = 0, alen = 0, aitem;
-
-			var own_on_success = function( res ) {
-
-				current += 1;
-
-				if ( 'function' == typeof req.on_success ) {
-					req.on_success( req, res, current );
-				}
-
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, current );
-				}
-
-			};
-
-			var own_on_complete = function( res, count ) {
-
-				if ( 'function' == typeof req.on_complete ) {
-					req.on_complete( req, results, count );
-				}
-
-			};
-
-			var own_on_error = function( res ) {
-
-				current += 1;
-
-				if ( 'function' == typeof req.on_error ) {
-					req.on_error( req, res, current );
-				}
-
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, target );
-				}
-
-			};
-
-			if ( Array.isArray( req.data ) ) {
-
-				var a = 0, alen = req.len, aitem;
-				target = alen;
-
-				for( a = 0; a < alen; a += 1 ) {
-					pulp.database.node.read( { type: this.singular, request: req }, own_on_success, own_on_error );
-				}
-
-			} else {
-	
-				pulp.database.node.read( { type: this.singular, request: req }, own_on_success, own_on_error );
-
-			}
-
-			return true;
-
-		}
-	} ,
-	{ singular: 'Organization'
-	, plural: 'Organizations'
-	, model:
-		{ id: 'string'
-		, display: 'string'
-		}
-	, validate: function( req ) {
-			console.log( 'pulp.entities validation', req );
-			var own_on_success = function( res ) {
-				if ( 'function' == typeof req.on_success ) {
-					req.on_success( req, res );
-				}
-			};
-			var own_on_complete = function( res ) {
-				if ( 'function' == typeof req.on_complete ) {
-					req.on_complete( req, res );
-				}
-			};
-			var own_on_error = function( res ) {
-				if ( 'function' == typeof req.on_error ) {
-					req.on_error( req, res );
-				}
-			};
-			return true;
-		}
-	, create: function( req ) {
-
-			console.log( 'pulp.entities.create', req );
-
-			var target = 0
-			, current = 0
-			, results = []
-			, own_on_success
-			, own_on_complete
-			, own_on_error
-			, a = 0, alen = 0, aitem;
-
-			var own_on_success = function( res ) {
-
-				current += 1;
-
-				if ( 'function' == typeof req.on_success ) {
-					req.on_success( req, res, current );
-				}
-
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, current );
-				}
-
-			};
-
-			var own_on_complete = function( res, count ) {
-
-				if ( 'function' == typeof req.on_complete ) {
-					req.on_complete( req, results, count );
-				}
-
-			};
-
-			var own_on_error = function( res ) {
-
-				current += 1;
-
-				if ( 'function' == typeof req.on_error ) {
-					req.on_error( req, res, current );
-				}
-
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, target );
-				}
-
-			};
-
-			if ( Array.isArray( req.data ) ) {
-
-				var a = 0, alen = req.len, aitem;
-				target = alen;
-
-				for( a = 0; a < alen; a += 1 ) {
-					pulp.database.node.create( { type: this.singular, request: req }, own_on_success, own_on_error );
-				}
-
-			} else {
-
-				pulp.database.node.create( { type: this.singular, request: req }, own_on_success, own_on_error );
-
-			}
+				} else {
 		
-			return true;
+					Private.database.node.read( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
 
-
-		}
-	, destroy: function( req ) {
-	
-			console.log( 'pulp.entities.destroy', req );
-
-			var target = 0
-			, current = 0
-			, results = []
-			, own_on_success
-			, own_on_complete
-			, own_on_error
-			, a = 0, alen = 0, aitem;
-
-			var own_on_success = function( res ) {
-
-				current += 1;
-
-				if ( 'function' == typeof req.on_success ) {
-					req.on_success( req, res, current );
 				}
 
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, current );
-				}
-
-			};
-
-			var own_on_complete = function( res, count ) {
-
-				if ( 'function' == typeof req.on_complete ) {
-					req.on_complete( req, results, count );
-				}
-
-			};
-
-			var own_on_error = function( res ) {
-
-				current += 1;
-
-				if ( 'function' == typeof req.on_error ) {
-					req.on_error( req, res, current );
-				}
-
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, target );
-				}
-
-			};
-
-			if ( Array.isArray( req.data ) ) {
-
-				var a = 0, alen = req.len, aitem;
-				target = alen;
-
-				for( a = 0; a < alen; a += 1 ) {
-					pulp.database.node.destroy( { type: this.singular, request: req }, own_on_success, own_on_error );
-				}
-
-			} else {
-
-				pulp.database.node.destroy( { type: this.singular, request: req }, own_on_success, own_on_error );
+				return true;
 
 			}
+		} ,
+		{ singular: 'Organization'
+		, plural: 'Organizations'
+		, relationships:
+				[ { 'People':
+					[ 'MENTION' 
+					]
+				, 'Place':
+					[ 'MENTION'
+					, 'RESIDE'
+					]
+				, 'Organization':
+					[ 'INVEST_IN'
+					, 'WORK_FOR'
+					, 'MENTION'
+					, 'CREATE'
+					]
+				, 'Idea':
+					[ 'INVEST_IN'
+					, 'WORK_FOR'
+					, 'MENTION'
+					, 'CREATE'
+					]
+				, 'Thing':
+					[ 'MENTION'
+					, 'OWN'
+					, 'CREATE'
+					]
+				} ]
+		, model:
+			{ id: 'string'
+			, display: 'string'
+			}
+		, validate: function( req ) {
+				console.log( 'Private.entities validation', req );
+				var own_on_success = function( res ) {
+					if ( 'function' == typeof req.on_success ) {
+						req.on_success( req, res );
+					}
+				};
+				var own_on_complete = function( res ) {
+					if ( 'function' == typeof req.on_complete ) {
+						req.on_complete( req, res );
+					}
+				};
+				var own_on_error = function( res ) {
+					if ( 'function' == typeof req.on_error ) {
+						req.on_error( req, res );
+					}
+				};
+				return true;
+			}
+		, create: function( req ) {
 
-			return true;
+				console.log( 'Private.entities.create', req );
 
-		}
-	, update: function( req ) {
+				var target = 0
+				, current = 0
+				, results = []
+				, own_on_success
+				, own_on_complete
+				, own_on_error
+				, a = 0, alen = 0, aitem;
 
-			console.log( 'pulp.entities.update', req );
+				var own_on_success = function( res ) {
 
-			var target = 0
-			, current = 0
-			, results = []
-			, own_on_success
-			, own_on_complete
-			, own_on_error
-			, a = 0, alen = 0, aitem;
+					current += 1;
 
-			var own_on_success = function( res ) {
+					if ( 'function' == typeof req.on_success ) {
+						req.on_success( req, res, current );
+					}
 
-				current += 1;
+					results.push( res );
 
-				if ( 'function' == typeof req.on_success ) {
-					req.on_success( req, res, current );
+					if ( current === target ) {
+						own_on_complete( res, current );
+					}
+
+				};
+
+				var own_on_complete = function( res, count ) {
+
+					if ( 'function' == typeof req.on_complete ) {
+						req.on_complete( req, results, count );
+					}
+
+				};
+
+				var own_on_error = function( res ) {
+
+					current += 1;
+
+					if ( 'function' == typeof req.on_error ) {
+						req.on_error( req, res, current );
+					}
+
+					results.push( res );
+
+					if ( current === target ) {
+						own_on_complete( res, target );
+					}
+
+				};
+
+				if ( Array.isArray( req.data ) ) {
+
+					var a = 0, alen = req.len, aitem;
+					target = alen;
+
+					for( a = 0; a < alen; a += 1 ) {
+						Private.database.node.create( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					}
+
+				} else {
+
+					Private.database.node.create( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+
 				}
+			
+				return true;
 
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, current );
-				}
-
-			};
-
-			var own_on_complete = function( res, count ) {
-
-				if ( 'function' == typeof req.on_complete ) {
-					req.on_complete( req, results, count );
-				}
-
-			};
-
-			var own_on_error = function( res ) {
-
-				current += 1;
-
-				if ( 'function' == typeof req.on_error ) {
-					req.on_error( req, res, current );
-				}
-
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, target );
-				}
-
-			};
-
-			if ( Array.isArray( req.data ) ) {
-
-				var a = 0, alen = req.len, aitem;
-				target = alen;
-
-				for( a = 0; a < alen; a += 1 ) {
-					pulp.database.node.update( { type: this.singular, request: req }, own_on_success, own_on_error );
-				}
-
-			} else {
-
-				pulp.database.node.update( { type: this.singular, request: req }, own_on_success, own_on_error );
 
 			}
-	
-			return true;
-
-		}
-	, read: function( req ) {
-
-			console.log( 'pulp.entities.read', req );
-
-			var target = 0
-			, current = 0
-			, results = []
-			, own_on_success
-			, own_on_complete
-			, own_on_error
-			, a = 0, alen = 0, aitem;
-
-			var own_on_success = function( res ) {
-
-				current += 1;
-
-				if ( 'function' == typeof req.on_success ) {
-					req.on_success( req, res, current );
-				}
-
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, current );
-				}
-
-			};
-
-			var own_on_complete = function( res, count ) {
-
-				if ( 'function' == typeof req.on_complete ) {
-					req.on_complete( req, results, count );
-				}
-
-			};
-
-			var own_on_error = function( res ) {
-
-				current += 1;
-
-				if ( 'function' == typeof req.on_error ) {
-					req.on_error( req, res, current );
-				}
-
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, target );
-				}
-
-			};
-
-			if ( Array.isArray( req.data ) ) {
-
-				var a = 0, alen = req.len, aitem;
-				target = alen;
-
-				for( a = 0; a < alen; a += 1 ) {
-					pulp.database.node.read( { type: this.singular, request: req }, own_on_success, own_on_error );
-				}
-
-			} else {
-	
-				pulp.database.node.read( { type: this.singular, request: req }, own_on_success, own_on_error );
-
-			}
-
-			return true;
-
-		}
-	} ,
-	{ singular: 'Place'
-	, plural: 'Places'
-	, model:
-		{ id: 'string'
-		, display: 'string'
-		, latitude: 'number'
-		, longitude: 'number'
-		}
-	, validate: function( req ) {
-			console.log( 'pulp.entities validation', req );
-			var own_on_success = function( res ) {
-				if ( 'function' == typeof req.on_success ) {
-					req.on_success( req, res );
-				}
-			};
-			var own_on_complete = function( res ) {
-				if ( 'function' == typeof req.on_complete ) {
-					req.on_complete( req, res );
-				}
-			};
-			var own_on_error = function( res ) {
-				if ( 'function' == typeof req.on_error ) {
-					req.on_error( req, res );
-				}
-			};
-			return true;
-		}
-	, create: function( req ) {
-
-			console.log( 'pulp.entities.create', req );
-
-			var target = 0
-			, current = 0
-			, results = []
-			, own_on_success
-			, own_on_complete
-			, own_on_error
-			, a = 0, alen = 0, aitem;
-
-			var own_on_success = function( res ) {
-
-				current += 1;
-
-				if ( 'function' == typeof req.on_success ) {
-					req.on_success( req, res, current );
-				}
-
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, current );
-				}
-
-			};
-
-			var own_on_complete = function( res, count ) {
-
-				if ( 'function' == typeof req.on_complete ) {
-					req.on_complete( req, results, count );
-				}
-
-			};
-
-			var own_on_error = function( res ) {
-
-				current += 1;
-
-				if ( 'function' == typeof req.on_error ) {
-					req.on_error( req, res, current );
-				}
-
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, target );
-				}
-
-			};
-
-			if ( Array.isArray( req.data ) ) {
-
-				var a = 0, alen = req.len, aitem;
-				target = alen;
-
-				for( a = 0; a < alen; a += 1 ) {
-					pulp.database.node.create( { type: this.singular, request: req }, own_on_success, own_on_error );
-				}
-
-			} else {
-
-				pulp.database.node.create( { type: this.singular, request: req }, own_on_success, own_on_error );
-
-			}
+		, destroy: function( req ) {
 		
-			return true;
+				console.log( 'Private.entities.destroy', req );
 
-		}
-	, destroy: function( req ) {
+				var target = 0
+				, current = 0
+				, results = []
+				, own_on_success
+				, own_on_complete
+				, own_on_error
+				, a = 0, alen = 0, aitem;
 
-			console.log( 'pulp.entities.destroy', req );
+				var own_on_success = function( res ) {
 
-			var target = 0
-			, current = 0
-			, results = []
-			, own_on_success
-			, own_on_complete
-			, own_on_error
-			, a = 0, alen = 0, aitem;
+					current += 1;
 
-			var own_on_success = function( res ) {
+					if ( 'function' == typeof req.on_success ) {
+						req.on_success( req, res, current );
+					}
 
-				current += 1;
+					results.push( res );
 
-				if ( 'function' == typeof req.on_success ) {
-					req.on_success( req, res, current );
+					if ( current === target ) {
+						own_on_complete( res, current );
+					}
+
+				};
+
+				var own_on_complete = function( res, count ) {
+
+					if ( 'function' == typeof req.on_complete ) {
+						req.on_complete( req, results, count );
+					}
+
+				};
+
+				var own_on_error = function( res ) {
+
+					current += 1;
+
+					if ( 'function' == typeof req.on_error ) {
+						req.on_error( req, res, current );
+					}
+
+					results.push( res );
+
+					if ( current === target ) {
+						own_on_complete( res, target );
+					}
+
+				};
+
+				if ( Array.isArray( req.data ) ) {
+
+					var a = 0, alen = req.len, aitem;
+					target = alen;
+
+					for( a = 0; a < alen; a += 1 ) {
+						Private.database.node.destroy( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					}
+
+				} else {
+
+					Private.database.node.destroy( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+
 				}
 
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, current );
-				}
-
-			};
-
-			var own_on_complete = function( res, count ) {
-
-				if ( 'function' == typeof req.on_complete ) {
-					req.on_complete( req, results, count );
-				}
-
-			};
-
-			var own_on_error = function( res ) {
-
-				current += 1;
-
-				if ( 'function' == typeof req.on_error ) {
-					req.on_error( req, res, current );
-				}
-
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, target );
-				}
-
-			};
-
-			if ( Array.isArray( req.data ) ) {
-
-				var a = 0, alen = req.len, aitem;
-				target = alen;
-
-				for( a = 0; a < alen; a += 1 ) {
-					pulp.database.node.destroy( { type: this.singular, request: req }, own_on_success, own_on_error );
-				}
-
-			} else {
-
-				pulp.database.node.destroy( { type: this.singular, request: req }, own_on_success, own_on_error );
+				return true;
 
 			}
+		, update: function( req ) {
 
-			return true;
+				console.log( 'Private.entities.update', req );
 
-		}
-	, update: function( req ) {
+				var target = 0
+				, current = 0
+				, results = []
+				, own_on_success
+				, own_on_complete
+				, own_on_error
+				, a = 0, alen = 0, aitem;
 
-			console.log( 'pulp.entities.update', req );
+				var own_on_success = function( res ) {
 
-			var target = 0
-			, current = 0
-			, results = []
-			, own_on_success
-			, own_on_complete
-			, own_on_error
-			, a = 0, alen = 0, aitem;
+					current += 1;
 
-			var own_on_success = function( res ) {
+					if ( 'function' == typeof req.on_success ) {
+						req.on_success( req, res, current );
+					}
 
-				current += 1;
+					results.push( res );
 
-				if ( 'function' == typeof req.on_success ) {
-					req.on_success( req, res, current );
+					if ( current === target ) {
+						own_on_complete( res, current );
+					}
+
+				};
+
+				var own_on_complete = function( res, count ) {
+
+					if ( 'function' == typeof req.on_complete ) {
+						req.on_complete( req, results, count );
+					}
+
+				};
+
+				var own_on_error = function( res ) {
+
+					current += 1;
+
+					if ( 'function' == typeof req.on_error ) {
+						req.on_error( req, res, current );
+					}
+
+					results.push( res );
+
+					if ( current === target ) {
+						own_on_complete( res, target );
+					}
+
+				};
+
+				if ( Array.isArray( req.data ) ) {
+
+					var a = 0, alen = req.len, aitem;
+					target = alen;
+
+					for( a = 0; a < alen; a += 1 ) {
+						Private.database.node.update( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					}
+
+				} else {
+
+					Private.database.node.update( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+
 				}
-
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, current );
-				}
-
-			};
-
-			var own_on_complete = function( res, count ) {
-
-				if ( 'function' == typeof req.on_complete ) {
-					req.on_complete( req, results, count );
-				}
-
-			};
-
-			var own_on_error = function( res ) {
-
-				current += 1;
-
-				if ( 'function' == typeof req.on_error ) {
-					req.on_error( req, res, current );
-				}
-
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, target );
-				}
-
-			};
-
-			if ( Array.isArray( req.data ) ) {
-
-				var a = 0, alen = req.len, aitem;
-				target = alen;
-
-				for( a = 0; a < alen; a += 1 ) {
-					pulp.database.node.update( { type: this.singular, request: req }, own_on_success, own_on_error );
-				}
-
-			} else {
-
-				pulp.database.node.update( { type: this.singular, request: req }, own_on_success, own_on_error );
-
-			}
-	
-			return true;
-
-		}
-	, read: function( req ) {
-
-			console.log( 'pulp.entities.read', req );
-
-			var target = 0
-			, current = 0
-			, results = []
-			, own_on_success
-			, own_on_complete
-			, own_on_error
-			, a = 0, alen = 0, aitem;
-
-			var own_on_success = function( res ) {
-
-				current += 1;
-
-				if ( 'function' == typeof req.on_success ) {
-					req.on_success( req, res, current );
-				}
-
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, current );
-				}
-
-			};
-
-			var own_on_complete = function( res, count ) {
-
-				if ( 'function' == typeof req.on_complete ) {
-					req.on_complete( req, results, count );
-				}
-
-			};
-
-			var own_on_error = function( res ) {
-
-				current += 1;
-
-				if ( 'function' == typeof req.on_error ) {
-					req.on_error( req, res, current );
-				}
-
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, target );
-				}
-
-			};
-
-			if ( Array.isArray( req.data ) ) {
-
-				var a = 0, alen = req.len, aitem;
-				target = alen;
-
-				for( a = 0; a < alen; a += 1 ) {
-					pulp.database.node.read( { type: this.singular, request: req }, own_on_success, own_on_error );
-				}
-
-			} else {
-	
-				pulp.database.node.read( { type: this.singular, request: req }, own_on_success, own_on_error );
-
-			}
-
-			return true;
-
-		}
-	} ,
-	{ singular: 'Idea'
-	, plural: 'Ideas'
-	, model:
-		{ id: 'string'
-		, display: 'string'
-		}
-	, validate: function( req ) {
-			console.log( 'pulp.entities validation', req );
-			var own_on_success = function( res ) {
-				if ( 'function' == typeof req.on_success ) {
-					req.on_success( req, res );
-				}
-			};
-			var own_on_complete = function( res ) {
-				if ( 'function' == typeof req.on_complete ) {
-					req.on_complete( req, res );
-				}
-			};
-			var own_on_error = function( res ) {
-				if ( 'function' == typeof req.on_error ) {
-					req.on_error( req, res );
-				}
-			};
-			return true;
-		}
-	, create: function( req ) {
-
-			console.log( 'pulp.entities.create', req );
-
-			var target = 0
-			, current = 0
-			, results = []
-			, own_on_success
-			, own_on_complete
-			, own_on_error
-			, a = 0, alen = 0, aitem;
-
-			var own_on_success = function( res ) {
-
-				current += 1;
-
-				if ( 'function' == typeof req.on_success ) {
-					req.on_success( req, res, current );
-				}
-
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, current );
-				}
-
-			};
-
-			var own_on_complete = function( res, count ) {
-
-				if ( 'function' == typeof req.on_complete ) {
-					req.on_complete( req, results, count );
-				}
-
-			};
-
-			var own_on_error = function( res ) {
-
-				current += 1;
-
-				if ( 'function' == typeof req.on_error ) {
-					req.on_error( req, res, current );
-				}
-
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, target );
-				}
-
-			};
-
-			if ( Array.isArray( req.data ) ) {
-
-				var a = 0, alen = req.len, aitem;
-				target = alen;
-
-				for( a = 0; a < alen; a += 1 ) {
-					pulp.database.node.create( { type: this.singular, request: req }, own_on_success, own_on_error );
-				}
-
-			} else {
-
-				pulp.database.node.create( { type: this.singular, request: req }, own_on_success, own_on_error );
-
-			}
 		
-			return true;
-
-		}
-	, destroy: function( req ) {
-
-			console.log( 'pulp.entities.destroy', req );
-
-			var target = 0
-			, current = 0
-			, results = []
-			, own_on_success
-			, own_on_complete
-			, own_on_error
-			, a = 0, alen = 0, aitem;
-
-			var own_on_success = function( res ) {
-
-				current += 1;
-
-				if ( 'function' == typeof req.on_success ) {
-					req.on_success( req, res, current );
-				}
-
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, current );
-				}
-
-			};
-
-			var own_on_complete = function( res, count ) {
-
-				if ( 'function' == typeof req.on_complete ) {
-					req.on_complete( req, results, count );
-				}
-
-			};
-
-			var own_on_error = function( res ) {
-
-				current += 1;
-
-				if ( 'function' == typeof req.on_error ) {
-					req.on_error( req, res, current );
-				}
-
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, target );
-				}
-
-			};
-
-			if ( Array.isArray( req.data ) ) {
-
-				var a = 0, alen = req.len, aitem;
-				target = alen;
-
-				for( a = 0; a < alen; a += 1 ) {
-					pulp.database.node.destroy( { type: this.singular, request: req }, own_on_success, own_on_error );
-				}
-
-			} else {
-
-				pulp.database.node.destroy( { type: this.singular, request: req }, own_on_success, own_on_error );
+				return true;
 
 			}
+		, read: function( req ) {
 
-			return true;
+				console.log( 'Private.entities.read', req );
 
-		}
-	, update: function( req ) {
+				var target = 0
+				, current = 0
+				, results = []
+				, own_on_success
+				, own_on_complete
+				, own_on_error
+				, a = 0, alen = 0, aitem;
 
-			console.log( 'pulp.entities.update', req );
+				var own_on_success = function( res ) {
 
-			var target = 0
-			, current = 0
-			, results = []
-			, own_on_success
-			, own_on_complete
-			, own_on_error
-			, a = 0, alen = 0, aitem;
+					current += 1;
 
-			var own_on_success = function( res ) {
+					if ( 'function' == typeof req.on_success ) {
+						req.on_success( req, res, current );
+					}
 
-				current += 1;
+					results.push( res );
 
-				if ( 'function' == typeof req.on_success ) {
-					req.on_success( req, res, current );
-				}
+					if ( current === target ) {
+						own_on_complete( res, current );
+					}
 
-				results.push( res );
+				};
 
-				if ( current === target ) {
-					own_on_complete( res, current );
-				}
+				var own_on_complete = function( res, count ) {
 
-			};
+					if ( 'function' == typeof req.on_complete ) {
+						req.on_complete( req, results, count );
+					}
 
-			var own_on_complete = function( res, count ) {
+				};
 
-				if ( 'function' == typeof req.on_complete ) {
-					req.on_complete( req, results, count );
-				}
+				var own_on_error = function( res ) {
 
-			};
+					current += 1;
 
-			var own_on_error = function( res ) {
+					if ( 'function' == typeof req.on_error ) {
+						req.on_error( req, res, current );
+					}
 
-				current += 1;
+					results.push( res );
 
-				if ( 'function' == typeof req.on_error ) {
-					req.on_error( req, res, current );
-				}
+					if ( current === target ) {
+						own_on_complete( res, target );
+					}
 
-				results.push( res );
+				};
 
-				if ( current === target ) {
-					own_on_complete( res, target );
-				}
+				if ( Array.isArray( req.data ) ) {
 
-			};
+					var a = 0, alen = req.len, aitem;
+					target = alen;
 
-			if ( Array.isArray( req.data ) ) {
+					for( a = 0; a < alen; a += 1 ) {
+						Private.database.node.read( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					}
 
-				var a = 0, alen = req.len, aitem;
-				target = alen;
-
-				for( a = 0; a < alen; a += 1 ) {
-					pulp.database.node.update( { type: this.singular, request: req }, own_on_success, own_on_error );
-				}
-
-			} else {
-
-				pulp.database.node.update( { type: this.singular, request: req }, own_on_success, own_on_error );
-
-			}
-	
-			return true;
-
-		}
-	, read: function( req ) {
-
-			console.log( 'pulp.entities.read', req );
-
-			var target = 0
-			, current = 0
-			, results = []
-			, own_on_success
-			, own_on_complete
-			, own_on_error
-			, a = 0, alen = 0, aitem;
-
-			var own_on_success = function( res ) {
-
-				current += 1;
-
-				if ( 'function' == typeof req.on_success ) {
-					req.on_success( req, res, current );
-				}
-
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, current );
-				}
-
-			};
-
-			var own_on_complete = function( res, count ) {
-
-				if ( 'function' == typeof req.on_complete ) {
-					req.on_complete( req, results, count );
-				}
-
-			};
-
-			var own_on_error = function( res ) {
-
-				current += 1;
-
-				if ( 'function' == typeof req.on_error ) {
-					req.on_error( req, res, current );
-				}
-
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, target );
-				}
-
-			};
-
-			if ( Array.isArray( req.data ) ) {
-
-				var a = 0, alen = req.len, aitem;
-				target = alen;
-
-				for( a = 0; a < alen; a += 1 ) {
-					pulp.database.node.read( { type: this.singular, request: req }, own_on_success, own_on_error );
-				}
-
-			} else {
-	
-				pulp.database.node.read( { type: this.singular, request: req }, own_on_success, own_on_error );
-
-			}
-
-			return true;
-
-		}
-	} ,
-	{ singular: 'Thing'
-	, plural: 'Things'
-	, model:
-		{ id: 'string'
-		, display: 'string'
-		}
-	, validate: function( req ) {
-
-			console.log( 'pulp.entities validation', req );
-
-			var own_on_success = function( res ) {
-				if ( 'function' == typeof req.on_success ) {
-					req.on_success( req, res );
-				}
-			};
-
-			var own_on_complete = function( res ) {
-				if ( 'function' == typeof req.on_complete ) {
-					req.on_complete( req, res );
-				}
-			};
-
-			var own_on_error = function( res ) {
-				if ( 'function' == typeof req.on_error ) {
-					req.on_error( req, res );
-				}
-			};
-
-			return true;
-
-		}
-	, create: function( req ) {
-
-			console.log( 'pulp.entities.create', req );
-
-			var target = 0
-			, current = 0
-			, results = []
-			, own_on_success
-			, own_on_complete
-			, own_on_error
-			, a = 0, alen = 0, aitem;
-
-			var own_on_success = function( res ) {
-
-				current += 1;
-
-				if ( 'function' == typeof req.on_success ) {
-					req.on_success( req, res, current );
-				}
-
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, current );
-				}
-
-			};
-
-			var own_on_complete = function( res, count ) {
-
-				if ( 'function' == typeof req.on_complete ) {
-					req.on_complete( req, results, count );
-				}
-
-			};
-
-			var own_on_error = function( res ) {
-
-				current += 1;
-
-				if ( 'function' == typeof req.on_error ) {
-					req.on_error( req, res, current );
-				}
-
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, target );
-				}
-
-			};
-
-			if ( Array.isArray( req.data ) ) {
-
-				var a = 0, alen = req.len, aitem;
-				target = alen;
-
-				for( a = 0; a < alen; a += 1 ) {
-					pulp.database.node.create( { type: this.singular, request: req }, own_on_success, own_on_error );
-				}
-
-			} else {
-
-				pulp.database.node.create( { type: this.singular, request: req }, own_on_success, own_on_error );
-
-			}
+				} else {
 		
-			return true;
+					Private.database.node.read( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
 
-		}
-	, destroy: function( req ) {
-
-			console.log( 'pulp.entities.destroy', req );
-
-			var target = 0
-			, current = 0
-			, results = []
-			, own_on_success
-			, own_on_complete
-			, own_on_error
-			, a = 0, alen = 0, aitem;
-
-			var own_on_success = function( res ) {
-
-				current += 1;
-
-				if ( 'function' == typeof req.on_success ) {
-					req.on_success( req, res, current );
 				}
 
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, current );
-				}
-
-			};
-
-			var own_on_complete = function( res, count ) {
-
-				if ( 'function' == typeof req.on_complete ) {
-					req.on_complete( req, results, count );
-				}
-
-			};
-
-			var own_on_error = function( res ) {
-
-				current += 1;
-
-				if ( 'function' == typeof req.on_error ) {
-					req.on_error( req, res, current );
-				}
-
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, target );
-				}
-
-			};
-
-			if ( Array.isArray( req.data ) ) {
-
-				var a = 0, alen = req.len, aitem;
-				target = alen;
-
-				for( a = 0; a < alen; a += 1 ) {
-					pulp.database.node.destroy( { type: this.singular, request: req }, own_on_success, own_on_error );
-				}
-
-			} else {
-
-				pulp.database.node.destroy( { type: this.singular, request: req }, own_on_success, own_on_error );
+				return true;
 
 			}
+		} ,
+		{ singular: 'Place'
+		, plural: 'Places'
+		, relationships:
+				[ { 'People':
+					[ 'MENTION' 
+					]
+				, 'Place':
+					[ 'MENTION'
+					, 'RESIDE'
+					]
+				, 'Organization':
+					[ 'INVEST_IN'
+					, 'WORK_FOR'
+					, 'MENTION'
+					, 'CREATE'
+					]
+				, 'Idea':
+					[ 'INVEST_IN'
+					, 'WORK_FOR'
+					, 'MENTION'
+					, 'CREATE'
+					]
+				, 'Thing':
+					[ 'MENTION'
+					, 'OWN'
+					, 'CREATE'
+					]
+				} ]
+		, model:
+			{ id: 'string'
+			, display: 'string'
+			, latitude: 'number'
+			, longitude: 'number'
+			}
+		, validate: function( req ) {
+				console.log( 'Private.entities validation', req );
+				var own_on_success = function( res ) {
+					if ( 'function' == typeof req.on_success ) {
+						req.on_success( req, res );
+					}
+				};
+				var own_on_complete = function( res ) {
+					if ( 'function' == typeof req.on_complete ) {
+						req.on_complete( req, res );
+					}
+				};
+				var own_on_error = function( res ) {
+					if ( 'function' == typeof req.on_error ) {
+						req.on_error( req, res );
+					}
+				};
+				return true;
+			}
+		, create: function( req ) {
 
-			return true;
+				console.log( 'Private.entities.create', req );
 
-		}
-	, update: function( req ) {
+				var target = 0
+				, current = 0
+				, results = []
+				, own_on_success
+				, own_on_complete
+				, own_on_error
+				, a = 0, alen = 0, aitem;
 
-			console.log( 'pulp.entities.update', req );
+				var own_on_success = function( res ) {
 
-			var target = 0
-			, current = 0
-			, results = []
-			, own_on_success
-			, own_on_complete
-			, own_on_error
-			, a = 0, alen = 0, aitem;
+					current += 1;
 
-			var own_on_success = function( res ) {
+					if ( 'function' == typeof req.on_success ) {
+						req.on_success( req, res, current );
+					}
 
-				current += 1;
+					results.push( res );
 
-				if ( 'function' == typeof req.on_success ) {
-					req.on_success( req, res, current );
+					if ( current === target ) {
+						own_on_complete( res, current );
+					}
+
+				};
+
+				var own_on_complete = function( res, count ) {
+
+					if ( 'function' == typeof req.on_complete ) {
+						req.on_complete( req, results, count );
+					}
+
+				};
+
+				var own_on_error = function( res ) {
+
+					current += 1;
+
+					if ( 'function' == typeof req.on_error ) {
+						req.on_error( req, res, current );
+					}
+
+					results.push( res );
+
+					if ( current === target ) {
+						own_on_complete( res, target );
+					}
+
+				};
+
+				if ( Array.isArray( req.data ) ) {
+
+					var a = 0, alen = req.len, aitem;
+					target = alen;
+
+					for( a = 0; a < alen; a += 1 ) {
+						Private.database.node.create( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					}
+
+				} else {
+
+					Private.database.node.create( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+
 				}
-
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, current );
-				}
-
-			};
-
-			var own_on_complete = function( res, count ) {
-
-				if ( 'function' == typeof req.on_complete ) {
-					req.on_complete( req, results, count );
-				}
-
-			};
-
-			var own_on_error = function( res ) {
-
-				current += 1;
-
-				if ( 'function' == typeof req.on_error ) {
-					req.on_error( req, res, current );
-				}
-
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, target );
-				}
-
-			};
-
-			if ( Array.isArray( req.data ) ) {
-
-				var a = 0, alen = req.len, aitem;
-				target = alen;
-
-				for( a = 0; a < alen; a += 1 ) {
-					pulp.database.node.update( { type: this.singular, request: req }, own_on_success, own_on_error );
-				}
-
-			} else {
-
-				pulp.database.node.update( { type: this.singular, request: req }, own_on_success, own_on_error );
+			
+				return true;
 
 			}
-	
-			return true;
+		, destroy: function( req ) {
 
-		}
-	, read: function( req ) {
+				console.log( 'Private.entities.destroy', req );
 
-			console.log( 'pulp.entities.read', req );
+				var target = 0
+				, current = 0
+				, results = []
+				, own_on_success
+				, own_on_complete
+				, own_on_error
+				, a = 0, alen = 0, aitem;
 
-			var target = 0
-			, current = 0
-			, results = []
-			, own_on_success
-			, own_on_complete
-			, own_on_error
-			, a = 0, alen = 0, aitem;
+				var own_on_success = function( res ) {
 
-			var own_on_success = function( res ) {
+					current += 1;
 
-				current += 1;
+					if ( 'function' == typeof req.on_success ) {
+						req.on_success( req, res, current );
+					}
 
-				if ( 'function' == typeof req.on_success ) {
-					req.on_success( req, res, current );
+					results.push( res );
+
+					if ( current === target ) {
+						own_on_complete( res, current );
+					}
+
+				};
+
+				var own_on_complete = function( res, count ) {
+
+					if ( 'function' == typeof req.on_complete ) {
+						req.on_complete( req, results, count );
+					}
+
+				};
+
+				var own_on_error = function( res ) {
+
+					current += 1;
+
+					if ( 'function' == typeof req.on_error ) {
+						req.on_error( req, res, current );
+					}
+
+					results.push( res );
+
+					if ( current === target ) {
+						own_on_complete( res, target );
+					}
+
+				};
+
+				if ( Array.isArray( req.data ) ) {
+
+					var a = 0, alen = req.len, aitem;
+					target = alen;
+
+					for( a = 0; a < alen; a += 1 ) {
+						Private.database.node.destroy( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					}
+
+				} else {
+
+					Private.database.node.destroy( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+
 				}
 
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, current );
-				}
-
-			};
-
-			var own_on_complete = function( res, count ) {
-
-				if ( 'function' == typeof req.on_complete ) {
-					req.on_complete( req, results, count );
-				}
-
-			};
-
-			var own_on_error = function( res ) {
-
-				current += 1;
-
-				if ( 'function' == typeof req.on_error ) {
-					req.on_error( req, res, current );
-				}
-
-				results.push( res );
-
-				if ( current === target ) {
-					own_on_complete( res, target );
-				}
-
-			};
-
-			if ( Array.isArray( req.data ) ) {
-
-				var a = 0, alen = req.len, aitem;
-				target = alen;
-
-				for( a = 0; a < alen; a += 1 ) {
-					pulp.database.node.read( { type: this.singular, request: req }, own_on_success, own_on_error );
-				}
-
-			} else {
-	
-				pulp.database.node.read( { type: this.singular, request: req }, own_on_success, own_on_error );
+				return true;
 
 			}
+		, update: function( req ) {
 
-			return true;
+				console.log( 'Private.entities.update', req );
 
-		}
-	}
-];
+				var target = 0
+				, current = 0
+				, results = []
+				, own_on_success
+				, own_on_complete
+				, own_on_error
+				, a = 0, alen = 0, aitem;
 
-/* setup */
+				var own_on_success = function( res ) {
 
-//TODO: Valid entities ( have singular, plural, model obj, validator ) or server dies
+					current += 1;
 
-pulp.vars = {};
+					if ( 'function' == typeof req.on_success ) {
+						req.on_success( req, res, current );
+					}
 
-// namespace setup
-pulp.namespace = {};
-for ( pulp.vars.attr in pulp.entities ) {
-	if ( pulp.entities.hasOwnProperty( pulp.vars.attr ) ) {
-		pulp.namespace[ pulp.vars.attr.plural ] = {};
-	}
-} 
+					results.push( res );
 
-/* callbacks */
+					if ( current === target ) {
+						own_on_complete( res, current );
+					}
 
-pulp.callback = function( err, result ) {
-	if ( err ) {
-		console.error( err );
-	} else {
+				};
+
+				var own_on_complete = function( res, count ) {
+
+					if ( 'function' == typeof req.on_complete ) {
+						req.on_complete( req, results, count );
+					}
+
+				};
+
+				var own_on_error = function( res ) {
+
+					current += 1;
+
+					if ( 'function' == typeof req.on_error ) {
+						req.on_error( req, res, current );
+					}
+
+					results.push( res );
+
+					if ( current === target ) {
+						own_on_complete( res, target );
+					}
+
+				};
+
+				if ( Array.isArray( req.data ) ) {
+
+					var a = 0, alen = req.len, aitem;
+					target = alen;
+
+					for( a = 0; a < alen; a += 1 ) {
+						Private.database.node.update( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					}
+
+				} else {
+
+					Private.database.node.update( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+
+				}
 		
-		if ( 'undefined' !== typeof result.data ) {
-			console.log( result.data );
-		} else {
-			console.log( result );
+				return true;
+
+			}
+		, read: function( req ) {
+
+				console.log( 'Private.entities.read', req );
+
+				var target = 0
+				, current = 0
+				, results = []
+				, own_on_success
+				, own_on_complete
+				, own_on_error
+				, a = 0, alen = 0, aitem;
+
+				var own_on_success = function( res ) {
+
+					current += 1;
+
+					if ( 'function' == typeof req.on_success ) {
+						req.on_success( req, res, current );
+					}
+
+					results.push( res );
+
+					if ( current === target ) {
+						own_on_complete( res, current );
+					}
+
+				};
+
+				var own_on_complete = function( res, count ) {
+
+					if ( 'function' == typeof req.on_complete ) {
+						req.on_complete( req, results, count );
+					}
+
+				};
+
+				var own_on_error = function( res ) {
+
+					current += 1;
+
+					if ( 'function' == typeof req.on_error ) {
+						req.on_error( req, res, current );
+					}
+
+					results.push( res );
+
+					if ( current === target ) {
+						own_on_complete( res, target );
+					}
+
+				};
+
+				if ( Array.isArray( req.data ) ) {
+
+					var a = 0, alen = req.len, aitem;
+					target = alen;
+
+					for( a = 0; a < alen; a += 1 ) {
+						Private.database.node.read( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					}
+
+				} else {
+		
+					Private.database.node.read( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+
+				}
+
+				return true;
+
+			}
+		} ,
+		{ singular: 'Idea'
+		, plural: 'Ideas'
+		, relationships:
+				[ { 'People':
+					[ 'MENTION' 
+					]
+				, 'Place':
+					[ 'MENTION'
+					, 'RESIDE'
+					]
+				, 'Organization':
+					[ 'INVEST_IN'
+					, 'WORK_FOR'
+					, 'MENTION'
+					, 'CREATE'
+					]
+				, 'Idea':
+					[ 'INVEST_IN'
+					, 'WORK_FOR'
+					, 'MENTION'
+					, 'CREATE'
+					]
+				, 'Thing':
+					[ 'MENTION'
+					, 'OWN'
+					, 'CREATE'
+					]
+				} ]
+		, model:
+			{ id: 'string'
+			, display: 'string'
+			}
+		, validate: function( req ) {
+				console.log( 'Private.entities validation', req );
+				var own_on_success = function( res ) {
+					if ( 'function' == typeof req.on_success ) {
+						req.on_success( req, res );
+					}
+				};
+				var own_on_complete = function( res ) {
+					if ( 'function' == typeof req.on_complete ) {
+						req.on_complete( req, res );
+					}
+				};
+				var own_on_error = function( res ) {
+					if ( 'function' == typeof req.on_error ) {
+						req.on_error( req, res );
+					}
+				};
+				return true;
+			}
+		, create: function( req ) {
+
+				console.log( 'Private.entities.create', req );
+
+				var target = 0
+				, current = 0
+				, results = []
+				, own_on_success
+				, own_on_complete
+				, own_on_error
+				, a = 0, alen = 0, aitem;
+
+				var own_on_success = function( res ) {
+
+					current += 1;
+
+					if ( 'function' == typeof req.on_success ) {
+						req.on_success( req, res, current );
+					}
+
+					results.push( res );
+
+					if ( current === target ) {
+						own_on_complete( res, current );
+					}
+
+				};
+
+				var own_on_complete = function( res, count ) {
+
+					if ( 'function' == typeof req.on_complete ) {
+						req.on_complete( req, results, count );
+					}
+
+				};
+
+				var own_on_error = function( res ) {
+
+					current += 1;
+
+					if ( 'function' == typeof req.on_error ) {
+						req.on_error( req, res, current );
+					}
+
+					results.push( res );
+
+					if ( current === target ) {
+						own_on_complete( res, target );
+					}
+
+				};
+
+				if ( Array.isArray( req.data ) ) {
+
+					var a = 0, alen = req.len, aitem;
+					target = alen;
+
+					for( a = 0; a < alen; a += 1 ) {
+						Private.database.node.create( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					}
+
+				} else {
+
+					Private.database.node.create( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+
+				}
+			
+				return true;
+
+			}
+		, destroy: function( req ) {
+
+				console.log( 'Private.entities.destroy', req );
+
+				var target = 0
+				, current = 0
+				, results = []
+				, own_on_success
+				, own_on_complete
+				, own_on_error
+				, a = 0, alen = 0, aitem;
+
+				var own_on_success = function( res ) {
+
+					current += 1;
+
+					if ( 'function' == typeof req.on_success ) {
+						req.on_success( req, res, current );
+					}
+
+					results.push( res );
+
+					if ( current === target ) {
+						own_on_complete( res, current );
+					}
+
+				};
+
+				var own_on_complete = function( res, count ) {
+
+					if ( 'function' == typeof req.on_complete ) {
+						req.on_complete( req, results, count );
+					}
+
+				};
+
+				var own_on_error = function( res ) {
+
+					current += 1;
+
+					if ( 'function' == typeof req.on_error ) {
+						req.on_error( req, res, current );
+					}
+
+					results.push( res );
+
+					if ( current === target ) {
+						own_on_complete( res, target );
+					}
+
+				};
+
+				if ( Array.isArray( req.data ) ) {
+
+					var a = 0, alen = req.len, aitem;
+					target = alen;
+
+					for( a = 0; a < alen; a += 1 ) {
+						Private.database.node.destroy( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					}
+
+				} else {
+
+					Private.database.node.destroy( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+
+				}
+
+				return true;
+
+			}
+		, update: function( req ) {
+
+				console.log( 'Private.entities.update', req );
+
+				var target = 0
+				, current = 0
+				, results = []
+				, own_on_success
+				, own_on_complete
+				, own_on_error
+				, a = 0, alen = 0, aitem;
+
+				var own_on_success = function( res ) {
+
+					current += 1;
+
+					if ( 'function' == typeof req.on_success ) {
+						req.on_success( req, res, current );
+					}
+
+					results.push( res );
+
+					if ( current === target ) {
+						own_on_complete( res, current );
+					}
+
+				};
+
+				var own_on_complete = function( res, count ) {
+
+					if ( 'function' == typeof req.on_complete ) {
+						req.on_complete( req, results, count );
+					}
+
+				};
+
+				var own_on_error = function( res ) {
+
+					current += 1;
+
+					if ( 'function' == typeof req.on_error ) {
+						req.on_error( req, res, current );
+					}
+
+					results.push( res );
+
+					if ( current === target ) {
+						own_on_complete( res, target );
+					}
+
+				};
+
+				if ( Array.isArray( req.data ) ) {
+
+					var a = 0, alen = req.len, aitem;
+					target = alen;
+
+					for( a = 0; a < alen; a += 1 ) {
+						Private.database.node.update( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					}
+
+				} else {
+
+					Private.database.node.update( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+
+				}
+		
+				return true;
+
+			}
+		, read: function( req ) {
+
+				console.log( 'Private.entities.read', req );
+
+				var target = 0
+				, current = 0
+				, results = []
+				, own_on_success
+				, own_on_complete
+				, own_on_error
+				, a = 0, alen = 0, aitem;
+
+				var own_on_success = function( res ) {
+
+					current += 1;
+
+					if ( 'function' == typeof req.on_success ) {
+						req.on_success( req, res, current );
+					}
+
+					results.push( res );
+
+					if ( current === target ) {
+						own_on_complete( res, current );
+					}
+
+				};
+
+				var own_on_complete = function( res, count ) {
+
+					if ( 'function' == typeof req.on_complete ) {
+						req.on_complete( req, results, count );
+					}
+
+				};
+
+				var own_on_error = function( res ) {
+
+					current += 1;
+
+					if ( 'function' == typeof req.on_error ) {
+						req.on_error( req, res, current );
+					}
+
+					results.push( res );
+
+					if ( current === target ) {
+						own_on_complete( res, target );
+					}
+
+				};
+
+				if ( Array.isArray( req.data ) ) {
+
+					var a = 0, alen = req.len, aitem;
+					target = alen;
+
+					for( a = 0; a < alen; a += 1 ) {
+						Private.database.node.read( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					}
+
+				} else {
+		
+					Private.database.node.read( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+
+				}
+
+				return true;
+
+			}
+		} ,
+		{ singular: 'Thing'
+		, plural: 'Things'
+		, relationships:
+				[ { 'People':
+					[ 'MENTION' 
+					]
+				, 'Place':
+					[ 'MENTION'
+					, 'RESIDE'
+					]
+				, 'Organization':
+					[ 'INVEST_IN'
+					, 'WORK_FOR'
+					, 'MENTION'
+					, 'CREATE'
+					]
+				, 'Idea':
+					[ 'INVEST_IN'
+					, 'WORK_FOR'
+					, 'MENTION'
+					, 'CREATE'
+					]
+				, 'Thing':
+					[ 'MENTION'
+					, 'OWN'
+					, 'CREATE'
+					]
+				} ]
+		, model:
+			{ id: 'string'
+			, display: 'string'
+			}
+		, validate: function( req ) {
+
+				console.log( 'Private.entities validation', req );
+
+				var own_on_success = function( res ) {
+					if ( 'function' == typeof req.on_success ) {
+						req.on_success( req, res );
+					}
+				};
+
+				var own_on_complete = function( res ) {
+					if ( 'function' == typeof req.on_complete ) {
+						req.on_complete( req, res );
+					}
+				};
+
+				var own_on_error = function( res ) {
+					if ( 'function' == typeof req.on_error ) {
+						req.on_error( req, res );
+					}
+				};
+
+				return true;
+
+			}
+		, create: function( req ) {
+
+				console.log( 'Private.entities.create', req );
+
+				var target = 0
+				, current = 0
+				, results = []
+				, own_on_success
+				, own_on_complete
+				, own_on_error
+				, a = 0, alen = 0, aitem;
+
+				var own_on_success = function( res ) {
+
+					current += 1;
+
+					if ( 'function' == typeof req.on_success ) {
+						req.on_success( req, res, current );
+					}
+
+					results.push( res );
+
+					if ( current === target ) {
+						own_on_complete( res, current );
+					}
+
+				};
+
+				var own_on_complete = function( res, count ) {
+
+					if ( 'function' == typeof req.on_complete ) {
+						req.on_complete( req, results, count );
+					}
+
+				};
+
+				var own_on_error = function( res ) {
+
+					current += 1;
+
+					if ( 'function' == typeof req.on_error ) {
+						req.on_error( req, res, current );
+					}
+
+					results.push( res );
+
+					if ( current === target ) {
+						own_on_complete( res, target );
+					}
+
+				};
+
+				if ( Array.isArray( req.data ) ) {
+
+					var a = 0, alen = req.len, aitem;
+					target = alen;
+
+					for( a = 0; a < alen; a += 1 ) {
+						Private.database.node.create( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					}
+
+				} else {
+
+					Private.database.node.create( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+
+				}
+			
+				return true;
+
+			}
+		, destroy: function( req ) {
+
+				console.log( 'Private.entities.destroy', req );
+
+				var target = 0
+				, current = 0
+				, results = []
+				, own_on_success
+				, own_on_complete
+				, own_on_error
+				, a = 0, alen = 0, aitem;
+
+				var own_on_success = function( res ) {
+
+					current += 1;
+
+					if ( 'function' == typeof req.on_success ) {
+						req.on_success( req, res, current );
+					}
+
+					results.push( res );
+
+					if ( current === target ) {
+						own_on_complete( res, current );
+					}
+
+				};
+
+				var own_on_complete = function( res, count ) {
+
+					if ( 'function' == typeof req.on_complete ) {
+						req.on_complete( req, results, count );
+					}
+
+				};
+
+				var own_on_error = function( res ) {
+
+					current += 1;
+
+					if ( 'function' == typeof req.on_error ) {
+						req.on_error( req, res, current );
+					}
+
+					results.push( res );
+
+					if ( current === target ) {
+						own_on_complete( res, target );
+					}
+
+				};
+
+				if ( Array.isArray( req.data ) ) {
+
+					var a = 0, alen = req.len, aitem;
+					target = alen;
+
+					for( a = 0; a < alen; a += 1 ) {
+						Private.database.node.destroy( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					}
+
+				} else {
+
+					Private.database.node.destroy( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+
+				}
+
+				return true;
+
+			}
+		, update: function( req ) {
+
+				console.log( 'Private.entities.update', req );
+
+				var target = 0
+				, current = 0
+				, results = []
+				, own_on_success
+				, own_on_complete
+				, own_on_error
+				, a = 0, alen = 0, aitem;
+
+				var own_on_success = function( res ) {
+
+					current += 1;
+
+					if ( 'function' == typeof req.on_success ) {
+						req.on_success( req, res, current );
+					}
+
+					results.push( res );
+
+					if ( current === target ) {
+						own_on_complete( res, current );
+					}
+
+				};
+
+				var own_on_complete = function( res, count ) {
+
+					if ( 'function' == typeof req.on_complete ) {
+						req.on_complete( req, results, count );
+					}
+
+				};
+
+				var own_on_error = function( res ) {
+
+					current += 1;
+
+					if ( 'function' == typeof req.on_error ) {
+						req.on_error( req, res, current );
+					}
+
+					results.push( res );
+
+					if ( current === target ) {
+						own_on_complete( res, target );
+					}
+
+				};
+
+				if ( Array.isArray( req.data ) ) {
+
+					var a = 0, alen = req.len, aitem;
+					target = alen;
+
+					for( a = 0; a < alen; a += 1 ) {
+						Private.database.node.update( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					}
+
+				} else {
+
+					Private.database.node.update( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+
+				}
+		
+				return true;
+
+			}
+		, read: function( req ) {
+
+				console.log( 'Private.entities.read', req );
+
+				var target = 0
+				, current = 0
+				, results = []
+				, own_on_success
+				, own_on_complete
+				, own_on_error
+				, a = 0, alen = 0, aitem;
+
+				var own_on_success = function( res ) {
+
+					current += 1;
+
+					if ( 'function' == typeof req.on_success ) {
+						req.on_success( req, res, current );
+					}
+
+					results.push( res );
+
+					if ( current === target ) {
+						own_on_complete( res, current );
+					}
+
+				};
+
+				var own_on_complete = function( res, count ) {
+
+					if ( 'function' == typeof req.on_complete ) {
+						req.on_complete( req, results, count );
+					}
+
+				};
+
+				var own_on_error = function( res ) {
+
+					current += 1;
+
+					if ( 'function' == typeof req.on_error ) {
+						req.on_error( req, res, current );
+					}
+
+					results.push( res );
+
+					if ( current === target ) {
+						own_on_complete( res, target );
+					}
+
+				};
+
+				if ( Array.isArray( req.data ) ) {
+
+					var a = 0, alen = req.len, aitem;
+					target = alen;
+					for( a = 0; a < alen; a += 1 ) {
+						Private.database.node.read( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					}
+
+				} else {
+		
+					Private.database.node.read( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+
+				}
+
+				return true;
+
+			}
 		}
-	}
-};
+	];
 
+	/* Callback */
 
-//var node = db.createNode( { hello: 'world' } );
-//node.save( pulp.callback );
+	Private.callback = function( err, result ) {
+		if ( err ) {
+			console.error( err );
+		} else {	
+			if ( 'undefined' !== typeof result.data ) {
+				console.log( result.data );
+			} else {
+				console.log( result );
+			}
+		}
+	};
 
-db.getNodeById( 1, pulp.callback );
+	var Public = function( req ) {
+		var relationships = ( 'undefined' !== typeof req.relationships ) ? req.relationships
+		, attributes = ( 'undefined' !== typeof req.attributes ) ? req.attributes
+		, nodes = ( 'undefined' !== typeof req.relationships ) ? req.nodes;
+	};
 
-//db.getRelationshipById( 1, pulp.callback );
+	Public.prototype.create = function( req ) {
+		if ( 'node' === req.type ) {
+			Private.node.create( req );
+		} else if ( 'relationship' === req.type ) {
+			Private.relationship.create( req );
+		}
+	};
 
-/* people */
+	Public.prototype.read = function( req ) {
+		var type = req.type;
+		delete req.type;
+		if ( 'node' === type ) {
+			Private.node.read( req );
+		} else if ( 'relationship' === type ) {
+			Private.relationship.read( req );
+		}
+	};
 
-pulp.person.get = function( req ) {
-	console.log( 'pulp.person.get', req );
-};
+	Public.prototype.update = function( req ) {
+		if ( 'node' === req.type ) {
+			Private.node.update( req );
+		} else if ( 'relationship' === req.type ) {
+			Private.relationship.update( req );
+		}
+	};
 
-pulp.people.get = function( req ) {
-	console.log( 'pulp.people.get', req );
-};
+	Public.prototype.destroy = function( req ) {
+		if ( 'node' === req.type ) {
+			Private.node.destroy( req );
+		} else if ( 'relationship' === req.type ) {
+			Private.relationship.destroy( req );
+		}
+	};
 
-pulp.person.create = function( req ) {
-	console.log( 'pulp.person.create', req );
-};
+	return Public;
 
-pulp.people.create = function( req ) {
-	console.log( 'pulp.people.create', req );
-};
+} )(); 
 
+/* End Pulp */
 
-/* topics */
-
-pulp.topic.get = function( req ) {
-	console.log( 'pulp.topic.get', req );
-};
-
-pulp.topics.get = function( req ) {
-	console.log( 'pulp.topics.get', req );
-};
-
-pulp.topic.create = function( req ) {
-	console.log( 'pulp.topic.create', req );
-};
-
-pulp.topics.create = function( req ) {
-	console.log( 'pulp.topics.create', req );
-};
-
-
-/* items */
-
-pulp.item.get = function( req ) {
-	console.log( 'pulp.item.get', req );
-};
-
-pulp.items.get = function( req ) {
-	console.log( 'pulp.items.get', req );
-};
-
-pulp.item.create = function( req ) {
-	console.log( 'pulp.item.create', req );
-};
-
-pulp.items.create = function( req ) {
-	console.log( 'pulp.items.create', req );
-};
+var pulp = new Pulp();
 
