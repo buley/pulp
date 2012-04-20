@@ -1793,3 +1793,10 @@ var Pulp = ( function() {
 
 var pulp = new Pulp();
 
+var on_success = function(res) {
+console.log('success',res');
+};
+var on_error = function(res) {
+console.log('success',res');
+};
+pulp.create( { type: 'node', data: { foo: 'bar' }, on_success: on_success, on_error: on_error } );
