@@ -1772,35 +1772,45 @@ var Pulp = ( function() {
 	};
 
 	Public.prototype.create = function( req ) {
-		if ( 'node' === req.datatype ) {
+		console.log( 'Public.prototype.create', req );
+		var datatype = req.datatype;
+		delete req.datatype;
+		if ( 'node' === datatype ) {
 			Private.node[ req.type ].create( req );
-		} else if ( 'relationship' === req.datatype ) {
+		} else if ( 'relationship' === datatype ) {
 			Private.relationship.create( req );
 		}
 	};
 
 	Public.prototype.read = function( req ) {
-		var type = req.type;
-		delete req.type;
-		if ( 'node' === type ) {
+		console.log( 'Public.prototype.read', req );
+		var datatype = req.datatype;
+		delete req.datatype;
+		if ( 'node' === datatype ) {
 			Private.node[ req.type ].read( req );
-		} else if ( 'relationship' === type ) {
+		} else if ( 'relationship' === datatype ) {
 			Private.relationship.read( req );
 		}
 	};
 
 	Public.prototype.update = function( req ) {
-		if ( 'node' === req.type ) {
+		console.log( 'Public.prototype.update', req );
+		var datatype = req.datatype;
+		delete req.datatype;
+		if ( 'node' === datatype ) {
 			Private.node.update( req );
-		} else if ( 'relationship' === req.type ) {
+		} else if ( 'relationship' === datatype ) {
 			Private.relationship.update( req );
 		}
 	};
 
 	Public.prototype.destroy = function( req ) {
-		if ( 'node' === req.type ) {
+		console.log( 'Public.prototype.destroy', req );
+		var datatype = req.datatype;
+		delete req.datatype;
+		if ( 'node' === datatype ) {
 			Private.node.destroy( req );
-		} else if ( 'relationship' === req.type ) {
+		} else if ( 'relationship' === datatype ) {
 			Private.relationship.destroy( req );
 		}
 	};
@@ -1817,6 +1827,6 @@ var on_success = function(res) {
 console.log('success',res);
 };
 var on_error = function(res) {
-console.log('success',res);
+console.log('error',res);
 };
-pulp.create( { type: 'node', data: { foo: 'bar' }, on_success: on_success, on_error: on_error } );
+pulp.create( { datatype: 'node', type: 'Person', data: { foo: 'bar' }, on_success: on_success, on_error: on_error } );
