@@ -55,7 +55,7 @@ var Pulp = ( function() {
 
 	Private.actions = [ 'create', 'read', 'update', 'destroy', 'validate' ];
 
-	Private.entities = [
+	Private.schema = [
 		{ singular: 'Person'
 		, plural: 'People'
 		, relationships:
@@ -1743,18 +1743,38 @@ var Pulp = ( function() {
 		}
 	};
 
-	var Public = function( req ) {
-		
+	var Public = function( req ) {	
 		var is_req =  ( 'undefined' !== typeof req && null !== req )
 		, relationships = ( ( is_req && 'undefined' !== typeof req.relationships ) ? req.relationships : null )
 		, attributes = ( ( is_req && 'undefined' !== typeof req.attributes ) ? req.attributes : null )
-		, nodes = ( ( is_req && 'undefined' !== typeof req.relationships ) ? req.nodes : null );
+		, nodes = ( ( is_req && 'undefined' !== typeof req.relationships ) ? req.nodes : null )
+		, x = 0, xlen = Private.schema.length, xitem;
+		Private.node = Private.node || {};
+		for ( x = 0; x < xlen; x += 1 ) {
+			xitem = Private.schema[ x ];
+			var attr;
+			for ( attr in xitem ) {
+				if ( xitem.hasOwnProperty( attr ) && 'function' === typeof xitem[ attr ] ) {
+
+					if ( 'undefined' === typeof Private.node[ xitem.singular ] ) {
+						Private.node[ xitem.singular ] = {};
+					}
+					Private.node[ xitem.singular ][ attr ] = xitem[ attr ];
+
+					if ( 'undefined' === typeof Private.node[ attr ] ) {
+						Private.node[ attr ] = {};
+					}	
+					Private.node[ attr ][ xitem.singular ] = xitem[ attr ];
+
+				}
+			}				
+		}
 	};
 
 	Public.prototype.create = function( req ) {
-		if ( 'node' === req.type ) {
-			Private.node.create( req );
-		} else if ( 'relationship' === req.type ) {
+		if ( 'node' === req.datatype ) {
+			Private.node[ req.type ].create( req );
+		} else if ( 'relationship' === req.datatype ) {
 			Private.relationship.create( req );
 		}
 	};
@@ -1763,7 +1783,7 @@ var Pulp = ( function() {
 		var type = req.type;
 		delete req.type;
 		if ( 'node' === type ) {
-			Private.node.read( req );
+			Private.node[ req.type ].read( req );
 		} else if ( 'relationship' === type ) {
 			Private.relationship.read( req );
 		}
@@ -1794,9 +1814,9 @@ var Pulp = ( function() {
 var pulp = new Pulp();
 
 var on_success = function(res) {
-console.log('success',res');
+console.log('success',res);
 };
 var on_error = function(res) {
-console.log('success',res');
+console.log('success',res);
 };
 pulp.create( { type: 'node', data: { foo: 'bar' }, on_success: on_success, on_error: on_error } );
