@@ -218,304 +218,610 @@ var Pulp = ( function() {
 			{ id: 'string'
 			, display: 'string'
 			}
-		, validate: function( req ) {
-				console.log( 'Private.entities validation', req );
-				var own_on_success = function( res ) {
-					if ( 'function' == typeof req.on_success ) {
-						req.on_success( req, res );
+		, schema:
+			{ node: 
+				{ validate: function( req ) {
+						console.log( 'Private.entities validation', req );
+						var own_on_success = function( res ) {
+							if ( 'function' == typeof req.on_success ) {
+								req.on_success( req, res );
+							}
+						};
+						var own_on_complete = function( res ) {
+							if ( 'function' == typeof req.on_complete ) {
+								req.on_complete( req, res );
+							}
+						};
+						var own_on_error = function( res ) {
+							if ( 'function' == typeof req.on_error ) {
+								req.on_error( req, res );
+							}
+						};
+						return true;
 					}
-				};
-				var own_on_complete = function( res ) {
-					if ( 'function' == typeof req.on_complete ) {
-						req.on_complete( req, res );
+					, create: function( req ) {
+
+						console.log( 'Private.entities.create', req );
+
+						var target = 0
+						, current = 0
+						, results = []
+						, own_on_success
+						, own_on_complete
+						, own_on_error
+						, a = 0, alen = 0, aitem;
+
+						var own_on_success = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_success ) {
+								req.on_success( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, current );
+							}
+
+						};
+
+						var own_on_complete = function( res, count ) {
+
+							if ( 'function' == typeof req.on_complete ) {
+								req.on_complete( req, results, count );
+							}
+
+						};
+
+						var own_on_error = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_error ) {
+								req.on_error( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, target );
+							}
+
+						};
+
+						if ( Array.isArray( req.data ) ) {
+
+							var a = 0, alen = req.len, aitem;
+							target = alen;
+
+							for( a = 0; a < alen; a += 1 ) {
+								Private.database.node.create( { type: 'Person', request: req, on_success: own_on_success, on_error: own_on_error } );
+							}
+
+						} else {
+							Private.database.node.create( { type: 'Person', request: req, on_success: own_on_success, on_error: own_on_error } );
+
+						}
+					
+						return true;
+
+
 					}
-				};
-				var own_on_error = function( res ) {
-					if ( 'function' == typeof req.on_error ) {
-						req.on_error( req, res );
+					, destroy: function( req ) {
+
+						console.log( 'Private.entities.destroy', req );
+
+						var target = 0
+						, current = 0
+						, results = []
+						, own_on_success
+						, own_on_complete
+						, own_on_error
+						, a = 0, alen = 0, aitem;
+
+						var own_on_success = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_success ) {
+								req.on_success( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, current );
+							}
+
+						};
+
+						var own_on_complete = function( res, count ) {
+
+							if ( 'function' == typeof req.on_complete ) {
+								req.on_complete( req, results, count );
+							}
+
+						};
+
+						var own_on_error = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_error ) {
+								req.on_error( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, target );
+							}
+
+						};
+
+						if ( Array.isArray( req.data ) ) {
+
+							var a = 0, alen = req.len, aitem;
+							target = alen;
+
+							for( a = 0; a < alen; a += 1 ) {
+								Private.database.node.destroy( { type: 'Person', request: req, on_success: own_on_success, on_error: own_on_error } );
+							}
+
+						} else {
+
+							Private.database.node.destroy( { type: 'Person', request: req, on_success: own_on_success, on_error: own_on_error } );
+
+						}
+
+						return true;
+
 					}
-				};
-				return true;
-			}
-		, create: function( req ) {
+					, update: function( req ) {
 
-				console.log( 'Private.entities.create', req );
+						console.log( 'Private.entities.update', req );
 
-				var target = 0
-				, current = 0
-				, results = []
-				, own_on_success
-				, own_on_complete
-				, own_on_error
-				, a = 0, alen = 0, aitem;
+						var target = 0
+						, current = 0
+						, results = []
+						, own_on_success
+						, own_on_complete
+						, own_on_error
+						, a = 0, alen = 0, aitem;
 
-				var own_on_success = function( res ) {
+						var own_on_success = function( res ) {
 
-					current += 1;
+							current += 1;
 
-					if ( 'function' == typeof req.on_success ) {
-						req.on_success( req, res, current );
+							if ( 'function' == typeof req.on_success ) {
+								req.on_success( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, current );
+							}
+
+						};
+
+						var own_on_complete = function( res, count ) {
+
+							if ( 'function' == typeof req.on_complete ) {
+								req.on_complete( req, results, count );
+							}
+
+						};
+
+						var own_on_error = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_error ) {
+								req.on_error( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, target );
+							}
+
+						};
+
+						if ( Array.isArray( req.data ) ) {
+
+							var a = 0, alen = req.len, aitem;
+							target = alen;
+
+							for( a = 0; a < alen; a += 1 ) {
+								Private.database.node.update( { type: 'Person', request: req, on_success: own_on_success, on_error: own_on_error } );
+							}
+
+						} else {
+
+							Private.database.node.update( { type: 'Person', request: req, on_success: own_on_success, on_error: own_on_error } );
+
+						}
+				
+						return true;
+
 					}
+					, read: function( req ) {
 
-					results.push( res );
+						console.log( 'Private.entities.read', req );
 
-					if ( current === target ) {
-						own_on_complete( res, current );
+						var target = 0
+						, current = 0
+						, results = []
+						, own_on_success
+						, own_on_complete
+						, own_on_error
+						, a = 0, alen = 0, aitem;
+
+						var own_on_success = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_success ) {
+								req.on_success( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, current );
+							}
+
+						};
+
+						var own_on_complete = function( res, count ) {
+
+							if ( 'function' == typeof req.on_complete ) {
+								req.on_complete( req, results, count );
+							}
+
+						};
+
+						var own_on_error = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_error ) {
+								req.on_error( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, target );
+							}
+
+						};
+
+						if ( Array.isArray( req.data ) ) {
+
+							var a = 0, alen = req.len, aitem;
+							target = alen;
+
+							for( a = 0; a < alen; a += 1 ) {
+								Private.database.node.read( { type: 'Person', request: req, on_success: own_on_success, on_error: own_on_error } );
+							}
+
+						} else {
+				
+							Private.database.node.read( { type: 'Person', request: req, on_success: own_on_success, on_error: own_on_error } );
+
+						}
+
+						return true;
+
 					}
-
-				};
-
-				var own_on_complete = function( res, count ) {
-
-					if ( 'function' == typeof req.on_complete ) {
-						req.on_complete( req, results, count );
+				}, relationship:
+					{ validate: function( req ) {
+						console.log( 'Private.entities validation', req );
+						var own_on_success = function( res ) {
+							if ( 'function' == typeof req.on_success ) {
+								req.on_success( req, res );
+							}
+						};
+						var own_on_complete = function( res ) {
+							if ( 'function' == typeof req.on_complete ) {
+								req.on_complete( req, res );
+							}
+						};
+						var own_on_error = function( res ) {
+							if ( 'function' == typeof req.on_error ) {
+								req.on_error( req, res );
+							}
+						};
+						return true;
 					}
+					, create: function( req ) {
 
-				};
+						console.log( 'Private.entities.create', req );
 
-				var own_on_error = function( res ) {
+						var target = 0
+						, current = 0
+						, results = []
+						, own_on_success
+						, own_on_complete
+						, own_on_error
+						, a = 0, alen = 0, aitem;
 
-					current += 1;
+						var own_on_success = function( res ) {
 
-					if ( 'function' == typeof req.on_error ) {
-						req.on_error( req, res, current );
+							current += 1;
+
+							if ( 'function' == typeof req.on_success ) {
+								req.on_success( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, current );
+							}
+
+						};
+
+						var own_on_complete = function( res, count ) {
+
+							if ( 'function' == typeof req.on_complete ) {
+								req.on_complete( req, results, count );
+							}
+
+						};
+
+						var own_on_error = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_error ) {
+								req.on_error( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, target );
+							}
+
+						};
+
+						if ( Array.isArray( req.data ) ) {
+
+							var a = 0, alen = req.len, aitem;
+							target = alen;
+
+							for( a = 0; a < alen; a += 1 ) {
+								Private.database.relationship.create( { type: 'Person', request: req, on_success: own_on_success, on_error: own_on_error } );
+							}
+
+						} else {
+							Private.database.relationship.create( { type: 'Person', request: req, on_success: own_on_success, on_error: own_on_error } );
+
+						}
+					
+						return true;
+
+
 					}
+					, destroy: function( req ) {
 
-					results.push( res );
+						console.log( 'Private.entities.destroy', req );
 
-					if ( current === target ) {
-						own_on_complete( res, target );
+						var target = 0
+						, current = 0
+						, results = []
+						, own_on_success
+						, own_on_complete
+						, own_on_error
+						, a = 0, alen = 0, aitem;
+
+						var own_on_success = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_success ) {
+								req.on_success( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, current );
+							}
+
+						};
+
+						var own_on_complete = function( res, count ) {
+
+							if ( 'function' == typeof req.on_complete ) {
+								req.on_complete( req, results, count );
+							}
+
+						};
+
+						var own_on_error = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_error ) {
+								req.on_error( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, target );
+							}
+
+						};
+
+						if ( Array.isArray( req.data ) ) {
+
+							var a = 0, alen = req.len, aitem;
+							target = alen;
+
+							for( a = 0; a < alen; a += 1 ) {
+								Private.database.relationship.destroy( { type: 'Person', request: req, on_success: own_on_success, on_error: own_on_error } );
+							}
+
+						} else {
+
+							Private.database.relationship.destroy( { type: 'Person', request: req, on_success: own_on_success, on_error: own_on_error } );
+
+						}
+
+						return true;
+
 					}
+					, update: function( req ) {
 
-				};
+						console.log( 'Private.entities.update', req );
 
-				if ( Array.isArray( req.data ) ) {
+						var target = 0
+						, current = 0
+						, results = []
+						, own_on_success
+						, own_on_complete
+						, own_on_error
+						, a = 0, alen = 0, aitem;
 
-					var a = 0, alen = req.len, aitem;
-					target = alen;
+						var own_on_success = function( res ) {
 
-					for( a = 0; a < alen; a += 1 ) {
-						Private.database.node.create( { type: 'Person', request: req, on_success: own_on_success, on_error: own_on_error } );
+							current += 1;
+
+							if ( 'function' == typeof req.on_success ) {
+								req.on_success( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, current );
+							}
+
+						};
+
+						var own_on_complete = function( res, count ) {
+
+							if ( 'function' == typeof req.on_complete ) {
+								req.on_complete( req, results, count );
+							}
+
+						};
+
+						var own_on_error = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_error ) {
+								req.on_error( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, target );
+							}
+
+						};
+
+						if ( Array.isArray( req.data ) ) {
+
+							var a = 0, alen = req.len, aitem;
+							target = alen;
+
+							for( a = 0; a < alen; a += 1 ) {
+								Private.database.relationship.update( { type: 'Person', request: req, on_success: own_on_success, on_error: own_on_error } );
+							}
+
+						} else {
+
+							Private.database.relationship.update( { type: 'Person', request: req, on_success: own_on_success, on_error: own_on_error } );
+
+						}
+				
+						return true;
+
 					}
+					, read: function( req ) {
 
-				} else {
-					Private.database.node.create( { type: 'Person', request: req, on_success: own_on_success, on_error: own_on_error } );
+						console.log( 'Private.entities.read', req );
 
-				}
-			
-				return true;
+						var target = 0
+						, current = 0
+						, results = []
+						, own_on_success
+						, own_on_complete
+						, own_on_error
+						, a = 0, alen = 0, aitem;
 
+						var own_on_success = function( res ) {
 
-			}
-		, destroy: function( req ) {
+							current += 1;
 
-				console.log( 'Private.entities.destroy', req );
+							if ( 'function' == typeof req.on_success ) {
+								req.on_success( req, res, current );
+							}
 
-				var target = 0
-				, current = 0
-				, results = []
-				, own_on_success
-				, own_on_complete
-				, own_on_error
-				, a = 0, alen = 0, aitem;
+							results.push( res );
 
-				var own_on_success = function( res ) {
+							if ( current === target ) {
+								own_on_complete( res, current );
+							}
 
-					current += 1;
+						};
 
-					if ( 'function' == typeof req.on_success ) {
-						req.on_success( req, res, current );
+						var own_on_complete = function( res, count ) {
+
+							if ( 'function' == typeof req.on_complete ) {
+								req.on_complete( req, results, count );
+							}
+
+						};
+
+						var own_on_error = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_error ) {
+								req.on_error( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, target );
+							}
+
+						};
+
+						if ( Array.isArray( req.data ) ) {
+
+							var a = 0, alen = req.len, aitem;
+							target = alen;
+
+							for( a = 0; a < alen; a += 1 ) {
+								Private.database.relationship.read( { type: 'Person', request: req, on_success: own_on_success, on_error: own_on_error } );
+							}
+
+						} else {
+				
+							Private.database.relationship.read( { type: 'Person', request: req, on_success: own_on_success, on_error: own_on_error } );
+
+						}
+
+						return true;
+
 					}
-
-					results.push( res );
-
-					if ( current === target ) {
-						own_on_complete( res, current );
-					}
-
-				};
-
-				var own_on_complete = function( res, count ) {
-
-					if ( 'function' == typeof req.on_complete ) {
-						req.on_complete( req, results, count );
-					}
-
-				};
-
-				var own_on_error = function( res ) {
-
-					current += 1;
-
-					if ( 'function' == typeof req.on_error ) {
-						req.on_error( req, res, current );
-					}
-
-					results.push( res );
-
-					if ( current === target ) {
-						own_on_complete( res, target );
-					}
-
-				};
-
-				if ( Array.isArray( req.data ) ) {
-
-					var a = 0, alen = req.len, aitem;
-					target = alen;
-
-					for( a = 0; a < alen; a += 1 ) {
-						Private.database.node.destroy( { type: 'Person', request: req, on_success: own_on_success, on_error: own_on_error } );
-					}
-
-				} else {
-
-					Private.database.node.destroy( { type: 'Person', request: req, on_success: own_on_success, on_error: own_on_error } );
-
-				}
-
-				return true;
-
-			}
-		, update: function( req ) {
-
-				console.log( 'Private.entities.update', req );
-
-				var target = 0
-				, current = 0
-				, results = []
-				, own_on_success
-				, own_on_complete
-				, own_on_error
-				, a = 0, alen = 0, aitem;
-
-				var own_on_success = function( res ) {
-
-					current += 1;
-
-					if ( 'function' == typeof req.on_success ) {
-						req.on_success( req, res, current );
-					}
-
-					results.push( res );
-
-					if ( current === target ) {
-						own_on_complete( res, current );
-					}
-
-				};
-
-				var own_on_complete = function( res, count ) {
-
-					if ( 'function' == typeof req.on_complete ) {
-						req.on_complete( req, results, count );
-					}
-
-				};
-
-				var own_on_error = function( res ) {
-
-					current += 1;
-
-					if ( 'function' == typeof req.on_error ) {
-						req.on_error( req, res, current );
-					}
-
-					results.push( res );
-
-					if ( current === target ) {
-						own_on_complete( res, target );
-					}
-
-				};
-
-				if ( Array.isArray( req.data ) ) {
-
-					var a = 0, alen = req.len, aitem;
-					target = alen;
-
-					for( a = 0; a < alen; a += 1 ) {
-						Private.database.node.update( { type: 'Person', request: req, on_success: own_on_success, on_error: own_on_error } );
-					}
-
-				} else {
-
-					Private.database.node.update( { type: 'Person', request: req, on_success: own_on_success, on_error: own_on_error } );
 
 				}
 		
-				return true;
-
-			}
-		, read: function( req ) {
-
-				console.log( 'Private.entities.read', req );
-
-				var target = 0
-				, current = 0
-				, results = []
-				, own_on_success
-				, own_on_complete
-				, own_on_error
-				, a = 0, alen = 0, aitem;
-
-				var own_on_success = function( res ) {
-
-					current += 1;
-
-					if ( 'function' == typeof req.on_success ) {
-						req.on_success( req, res, current );
-					}
-
-					results.push( res );
-
-					if ( current === target ) {
-						own_on_complete( res, current );
-					}
-
-				};
-
-				var own_on_complete = function( res, count ) {
-
-					if ( 'function' == typeof req.on_complete ) {
-						req.on_complete( req, results, count );
-					}
-
-				};
-
-				var own_on_error = function( res ) {
-
-					current += 1;
-
-					if ( 'function' == typeof req.on_error ) {
-						req.on_error( req, res, current );
-					}
-
-					results.push( res );
-
-					if ( current === target ) {
-						own_on_complete( res, target );
-					}
-
-				};
-
-				if ( Array.isArray( req.data ) ) {
-
-					var a = 0, alen = req.len, aitem;
-					target = alen;
-
-					for( a = 0; a < alen; a += 1 ) {
-						Private.database.node.read( { type: 'Person', request: req, on_success: own_on_success, on_error: own_on_error } );
-					}
-
-				} else {
-		
-					Private.database.node.read( { type: 'Person', request: req, on_success: own_on_success, on_error: own_on_error } );
-
-				}
-
-				return true;
-
 			}
 		} ,
 		{ singular: 'Organization'
@@ -550,305 +856,610 @@ var Pulp = ( function() {
 			{ id: 'string'
 			, display: 'string'
 			}
-		, validate: function( req ) {
-				console.log( 'Private.entities validation', req );
-				var own_on_success = function( res ) {
-					if ( 'function' == typeof req.on_success ) {
-						req.on_success( req, res );
+		, schema: 
+			{ node:
+				{ validate: function( req ) {
+						console.log( 'Private.entities validation', req );
+						var own_on_success = function( res ) {
+							if ( 'function' == typeof req.on_success ) {
+								req.on_success( req, res );
+							}
+						};
+						var own_on_complete = function( res ) {
+							if ( 'function' == typeof req.on_complete ) {
+								req.on_complete( req, res );
+							}
+						};
+						var own_on_error = function( res ) {
+							if ( 'function' == typeof req.on_error ) {
+								req.on_error( req, res );
+							}
+						};
+						return true;
 					}
-				};
-				var own_on_complete = function( res ) {
-					if ( 'function' == typeof req.on_complete ) {
-						req.on_complete( req, res );
+					, create: function( req ) {
+
+						console.log( 'Private.entities.create', req );
+
+						var target = 0
+						, current = 0
+						, results = []
+						, own_on_success
+						, own_on_complete
+						, own_on_error
+						, a = 0, alen = 0, aitem;
+
+						var own_on_success = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_success ) {
+								req.on_success( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, current );
+							}
+
+						};
+
+						var own_on_complete = function( res, count ) {
+
+							if ( 'function' == typeof req.on_complete ) {
+								req.on_complete( req, results, count );
+							}
+
+						};
+
+						var own_on_error = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_error ) {
+								req.on_error( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, target );
+							}
+
+						};
+
+						if ( Array.isArray( req.data ) ) {
+
+							var a = 0, alen = req.len, aitem;
+							target = alen;
+
+							for( a = 0; a < alen; a += 1 ) {
+								Private.database.node.create( { type: 'Organization', request: req, on_success: own_on_success, on_error: own_on_error } );
+							}
+
+						} else {
+
+							Private.database.node.create( { type: 'Organization', request: req, on_success: own_on_success, on_error: own_on_error } );
+
+						}
+					
+						return true;
+
+
 					}
-				};
-				var own_on_error = function( res ) {
-					if ( 'function' == typeof req.on_error ) {
-						req.on_error( req, res );
+					, destroy: function( req ) {
+				
+						console.log( 'Private.entities.destroy', req );
+
+						var target = 0
+						, current = 0
+						, results = []
+						, own_on_success
+						, own_on_complete
+						, own_on_error
+						, a = 0, alen = 0, aitem;
+
+						var own_on_success = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_success ) {
+								req.on_success( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, current );
+							}
+
+						};
+
+						var own_on_complete = function( res, count ) {
+
+							if ( 'function' == typeof req.on_complete ) {
+								req.on_complete( req, results, count );
+							}
+
+						};
+
+						var own_on_error = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_error ) {
+								req.on_error( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, target );
+							}
+
+						};
+
+						if ( Array.isArray( req.data ) ) {
+
+							var a = 0, alen = req.len, aitem;
+							target = alen;
+
+							for( a = 0; a < alen; a += 1 ) {
+								Private.database.node.destroy( { type: 'Organization', request: req, on_success: own_on_success, on_error: own_on_error } );
+							}
+
+						} else {
+
+							Private.database.node.destroy( { type: 'Organization', request: req, on_success: own_on_success, on_error: own_on_error } );
+
+						}
+
+						return true;
+
 					}
-				};
-				return true;
-			}
-		, create: function( req ) {
+					, update: function( req ) {
 
-				console.log( 'Private.entities.create', req );
+						console.log( 'Private.entities.update', req );
 
-				var target = 0
-				, current = 0
-				, results = []
-				, own_on_success
-				, own_on_complete
-				, own_on_error
-				, a = 0, alen = 0, aitem;
+						var target = 0
+						, current = 0
+						, results = []
+						, own_on_success
+						, own_on_complete
+						, own_on_error
+						, a = 0, alen = 0, aitem;
 
-				var own_on_success = function( res ) {
+						var own_on_success = function( res ) {
 
-					current += 1;
+							current += 1;
 
-					if ( 'function' == typeof req.on_success ) {
-						req.on_success( req, res, current );
+							if ( 'function' == typeof req.on_success ) {
+								req.on_success( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, current );
+							}
+
+						};
+
+						var own_on_complete = function( res, count ) {
+
+							if ( 'function' == typeof req.on_complete ) {
+								req.on_complete( req, results, count );
+							}
+
+						};
+
+						var own_on_error = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_error ) {
+								req.on_error( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, target );
+							}
+
+						};
+
+						if ( Array.isArray( req.data ) ) {
+
+							var a = 0, alen = req.len, aitem;
+							target = alen;
+
+							for( a = 0; a < alen; a += 1 ) {
+								Private.database.node.update( { type: 'Organization', request: req, on_success: own_on_success, on_error: own_on_error } );
+							}
+
+						} else {
+
+							Private.database.node.update( { type: 'Organization', request: req, on_success: own_on_success, on_error: own_on_error } );
+
+						}
+				
+						return true;
+
+					}
+					, read: function( req ) {
+
+						console.log( 'Private.entities.read', req );
+
+						var target = 0
+						, current = 0
+						, results = []
+						, own_on_success
+						, own_on_complete
+						, own_on_error
+						, a = 0, alen = 0, aitem;
+
+						var own_on_success = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_success ) {
+								req.on_success( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, current );
+							}
+
+						};
+
+						var own_on_complete = function( res, count ) {
+
+							if ( 'function' == typeof req.on_complete ) {
+								req.on_complete( req, results, count );
+							}
+
+						};
+
+						var own_on_error = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_error ) {
+								req.on_error( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, target );
+							}
+
+						};
+
+						if ( Array.isArray( req.data ) ) {
+
+							var a = 0, alen = req.len, aitem;
+							target = alen;
+
+							for( a = 0; a < alen; a += 1 ) {
+								Private.database.node.read( { type: 'Organization', request: req, on_success: own_on_success, on_error: own_on_error } );
+							}
+
+						} else {
+				
+							Private.database.node.read( { type: 'Organization', request: req, on_success: own_on_success, on_error: own_on_error } );
+
+						}
+
+						return true;
+
 					}
 
-					results.push( res );
-
-					if ( current === target ) {
-						own_on_complete( res, current );
+				}, relationship:
+					{ validate: function( req ) {
+						console.log( 'Private.entities validation', req );
+						var own_on_success = function( res ) {
+							if ( 'function' == typeof req.on_success ) {
+								req.on_success( req, res );
+							}
+						};
+						var own_on_complete = function( res ) {
+							if ( 'function' == typeof req.on_complete ) {
+								req.on_complete( req, res );
+							}
+						};
+						var own_on_error = function( res ) {
+							if ( 'function' == typeof req.on_error ) {
+								req.on_error( req, res );
+							}
+						};
+						return true;
 					}
+					, create: function( req ) {
 
-				};
+						console.log( 'Private.entities.create', req );
 
-				var own_on_complete = function( res, count ) {
+						var target = 0
+						, current = 0
+						, results = []
+						, own_on_success
+						, own_on_complete
+						, own_on_error
+						, a = 0, alen = 0, aitem;
 
-					if ( 'function' == typeof req.on_complete ) {
-						req.on_complete( req, results, count );
+						var own_on_success = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_success ) {
+								req.on_success( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, current );
+							}
+
+						};
+
+						var own_on_complete = function( res, count ) {
+
+							if ( 'function' == typeof req.on_complete ) {
+								req.on_complete( req, results, count );
+							}
+
+						};
+
+						var own_on_error = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_error ) {
+								req.on_error( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, target );
+							}
+
+						};
+
+						if ( Array.isArray( req.data ) ) {
+
+							var a = 0, alen = req.len, aitem;
+							target = alen;
+
+							for( a = 0; a < alen; a += 1 ) {
+								Private.database.relationship.create( { type: 'Organization', request: req, on_success: own_on_success, on_error: own_on_error } );
+							}
+
+						} else {
+							Private.database.relationship.create( { type: 'Organization', request: req, on_success: own_on_success, on_error: own_on_error } );
+
+						}
+					
+						return true;
+
+
 					}
+					, destroy: function( req ) {
 
-				};
+						console.log( 'Private.entities.destroy', req );
 
-				var own_on_error = function( res ) {
+						var target = 0
+						, current = 0
+						, results = []
+						, own_on_success
+						, own_on_complete
+						, own_on_error
+						, a = 0, alen = 0, aitem;
 
-					current += 1;
+						var own_on_success = function( res ) {
 
-					if ( 'function' == typeof req.on_error ) {
-						req.on_error( req, res, current );
+							current += 1;
+
+							if ( 'function' == typeof req.on_success ) {
+								req.on_success( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, current );
+							}
+
+						};
+
+						var own_on_complete = function( res, count ) {
+
+							if ( 'function' == typeof req.on_complete ) {
+								req.on_complete( req, results, count );
+							}
+
+						};
+
+						var own_on_error = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_error ) {
+								req.on_error( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, target );
+							}
+
+						};
+
+						if ( Array.isArray( req.data ) ) {
+
+							var a = 0, alen = req.len, aitem;
+							target = alen;
+
+							for( a = 0; a < alen; a += 1 ) {
+								Private.database.relationship.destroy( { type: 'Organization', request: req, on_success: own_on_success, on_error: own_on_error } );
+							}
+
+						} else {
+
+							Private.database.relationship.destroy( { type: 'Organization', request: req, on_success: own_on_success, on_error: own_on_error } );
+
+						}
+
+						return true;
+
 					}
+					, update: function( req ) {
 
-					results.push( res );
+						console.log( 'Private.entities.update', req );
 
-					if ( current === target ) {
-						own_on_complete( res, target );
+						var target = 0
+						, current = 0
+						, results = []
+						, own_on_success
+						, own_on_complete
+						, own_on_error
+						, a = 0, alen = 0, aitem;
+
+						var own_on_success = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_success ) {
+								req.on_success( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, current );
+							}
+
+						};
+
+						var own_on_complete = function( res, count ) {
+
+							if ( 'function' == typeof req.on_complete ) {
+								req.on_complete( req, results, count );
+							}
+
+						};
+
+						var own_on_error = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_error ) {
+								req.on_error( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, target );
+							}
+
+						};
+
+						if ( Array.isArray( req.data ) ) {
+
+							var a = 0, alen = req.len, aitem;
+							target = alen;
+
+							for( a = 0; a < alen; a += 1 ) {
+								Private.database.relationship.update( { type: 'Organization', request: req, on_success: own_on_success, on_error: own_on_error } );
+							}
+
+						} else {
+
+							Private.database.relationship.update( { type: 'Organization', request: req, on_success: own_on_success, on_error: own_on_error } );
+
+						}
+				
+						return true;
+
 					}
+					, read: function( req ) {
 
-				};
+						console.log( 'Private.entities.read', req );
 
-				if ( Array.isArray( req.data ) ) {
+						var target = 0
+						, current = 0
+						, results = []
+						, own_on_success
+						, own_on_complete
+						, own_on_error
+						, a = 0, alen = 0, aitem;
 
-					var a = 0, alen = req.len, aitem;
-					target = alen;
+						var own_on_success = function( res ) {
 
-					for( a = 0; a < alen; a += 1 ) {
-						Private.database.node.create( { type: 'Organization', request: req, on_success: own_on_success, on_error: own_on_error } );
+							current += 1;
+
+							if ( 'function' == typeof req.on_success ) {
+								req.on_success( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, current );
+							}
+
+						};
+
+						var own_on_complete = function( res, count ) {
+
+							if ( 'function' == typeof req.on_complete ) {
+								req.on_complete( req, results, count );
+							}
+
+						};
+
+						var own_on_error = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_error ) {
+								req.on_error( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, target );
+							}
+
+						};
+
+						if ( Array.isArray( req.data ) ) {
+
+							var a = 0, alen = req.len, aitem;
+							target = alen;
+
+							for( a = 0; a < alen; a += 1 ) {
+								Private.database.relationship.read( { type: 'Organization', request: req, on_success: own_on_success, on_error: own_on_error } );
+							}
+
+						} else {
+				
+							Private.database.relationship.read( { type: 'Organization', request: req, on_success: own_on_success, on_error: own_on_error } );
+
+						}
+
+						return true;
+
 					}
-
-				} else {
-
-					Private.database.node.create( { type: 'Organization', request: req, on_success: own_on_success, on_error: own_on_error } );
-
 				}
-			
-				return true;
-
-
-			}
-		, destroy: function( req ) {
-		
-				console.log( 'Private.entities.destroy', req );
-
-				var target = 0
-				, current = 0
-				, results = []
-				, own_on_success
-				, own_on_complete
-				, own_on_error
-				, a = 0, alen = 0, aitem;
-
-				var own_on_success = function( res ) {
-
-					current += 1;
-
-					if ( 'function' == typeof req.on_success ) {
-						req.on_success( req, res, current );
-					}
-
-					results.push( res );
-
-					if ( current === target ) {
-						own_on_complete( res, current );
-					}
-
-				};
-
-				var own_on_complete = function( res, count ) {
-
-					if ( 'function' == typeof req.on_complete ) {
-						req.on_complete( req, results, count );
-					}
-
-				};
-
-				var own_on_error = function( res ) {
-
-					current += 1;
-
-					if ( 'function' == typeof req.on_error ) {
-						req.on_error( req, res, current );
-					}
-
-					results.push( res );
-
-					if ( current === target ) {
-						own_on_complete( res, target );
-					}
-
-				};
-
-				if ( Array.isArray( req.data ) ) {
-
-					var a = 0, alen = req.len, aitem;
-					target = alen;
-
-					for( a = 0; a < alen; a += 1 ) {
-						Private.database.node.destroy( { type: 'Organization', request: req, on_success: own_on_success, on_error: own_on_error } );
-					}
-
-				} else {
-
-					Private.database.node.destroy( { type: 'Organization', request: req, on_success: own_on_success, on_error: own_on_error } );
-
-				}
-
-				return true;
-
-			}
-		, update: function( req ) {
-
-				console.log( 'Private.entities.update', req );
-
-				var target = 0
-				, current = 0
-				, results = []
-				, own_on_success
-				, own_on_complete
-				, own_on_error
-				, a = 0, alen = 0, aitem;
-
-				var own_on_success = function( res ) {
-
-					current += 1;
-
-					if ( 'function' == typeof req.on_success ) {
-						req.on_success( req, res, current );
-					}
-
-					results.push( res );
-
-					if ( current === target ) {
-						own_on_complete( res, current );
-					}
-
-				};
-
-				var own_on_complete = function( res, count ) {
-
-					if ( 'function' == typeof req.on_complete ) {
-						req.on_complete( req, results, count );
-					}
-
-				};
-
-				var own_on_error = function( res ) {
-
-					current += 1;
-
-					if ( 'function' == typeof req.on_error ) {
-						req.on_error( req, res, current );
-					}
-
-					results.push( res );
-
-					if ( current === target ) {
-						own_on_complete( res, target );
-					}
-
-				};
-
-				if ( Array.isArray( req.data ) ) {
-
-					var a = 0, alen = req.len, aitem;
-					target = alen;
-
-					for( a = 0; a < alen; a += 1 ) {
-						Private.database.node.update( { type: 'Organization', request: req, on_success: own_on_success, on_error: own_on_error } );
-					}
-
-				} else {
-
-					Private.database.node.update( { type: 'Organization', request: req, on_success: own_on_success, on_error: own_on_error } );
-
-				}
-		
-				return true;
-
-			}
-		, read: function( req ) {
-
-				console.log( 'Private.entities.read', req );
-
-				var target = 0
-				, current = 0
-				, results = []
-				, own_on_success
-				, own_on_complete
-				, own_on_error
-				, a = 0, alen = 0, aitem;
-
-				var own_on_success = function( res ) {
-
-					current += 1;
-
-					if ( 'function' == typeof req.on_success ) {
-						req.on_success( req, res, current );
-					}
-
-					results.push( res );
-
-					if ( current === target ) {
-						own_on_complete( res, current );
-					}
-
-				};
-
-				var own_on_complete = function( res, count ) {
-
-					if ( 'function' == typeof req.on_complete ) {
-						req.on_complete( req, results, count );
-					}
-
-				};
-
-				var own_on_error = function( res ) {
-
-					current += 1;
-
-					if ( 'function' == typeof req.on_error ) {
-						req.on_error( req, res, current );
-					}
-
-					results.push( res );
-
-					if ( current === target ) {
-						own_on_complete( res, target );
-					}
-
-				};
-
-				if ( Array.isArray( req.data ) ) {
-
-					var a = 0, alen = req.len, aitem;
-					target = alen;
-
-					for( a = 0; a < alen; a += 1 ) {
-						Private.database.node.read( { type: 'Organization', request: req, on_success: own_on_success, on_error: own_on_error } );
-					}
-
-				} else {
-		
-					Private.database.node.read( { type: 'Organization', request: req, on_success: own_on_success, on_error: own_on_error } );
-
-				}
-
-				return true;
-
 			}
 		} ,
 		{ singular: 'Place'
@@ -885,304 +1496,609 @@ var Pulp = ( function() {
 			, latitude: 'number'
 			, longitude: 'number'
 			}
-		, validate: function( req ) {
-				console.log( 'Private.entities validation', req );
-				var own_on_success = function( res ) {
-					if ( 'function' == typeof req.on_success ) {
-						req.on_success( req, res );
+		, schema:
+			{ node:
+				{ validate: function( req ) {
+						console.log( 'Private.entities validation', req );
+						var own_on_success = function( res ) {
+							if ( 'function' == typeof req.on_success ) {
+								req.on_success( req, res );
+							}
+						};
+						var own_on_complete = function( res ) {
+							if ( 'function' == typeof req.on_complete ) {
+								req.on_complete( req, res );
+							}
+						};
+						var own_on_error = function( res ) {
+							if ( 'function' == typeof req.on_error ) {
+								req.on_error( req, res );
+							}
+						};
+						return true;
 					}
-				};
-				var own_on_complete = function( res ) {
-					if ( 'function' == typeof req.on_complete ) {
-						req.on_complete( req, res );
+					, create: function( req ) {
+
+						console.log( 'Private.entities.create', req );
+
+						var target = 0
+						, current = 0
+						, results = []
+						, own_on_success
+						, own_on_complete
+						, own_on_error
+						, a = 0, alen = 0, aitem;
+
+						var own_on_success = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_success ) {
+								req.on_success( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, current );
+							}
+
+						};
+
+						var own_on_complete = function( res, count ) {
+
+							if ( 'function' == typeof req.on_complete ) {
+								req.on_complete( req, results, count );
+							}
+
+						};
+
+						var own_on_error = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_error ) {
+								req.on_error( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, target );
+							}
+
+						};
+
+						if ( Array.isArray( req.data ) ) {
+
+							var a = 0, alen = req.len, aitem;
+							target = alen;
+
+							for( a = 0; a < alen; a += 1 ) {
+								Private.database.node.create( { type: 'Place', request: req, on_success: own_on_success, on_error: own_on_error } );
+							}
+
+						} else {
+
+							Private.database.node.create( { type: 'Place', request: req, on_success: own_on_success, on_error: own_on_error } );
+
+						}
+					
+						return true;
+
 					}
-				};
-				var own_on_error = function( res ) {
-					if ( 'function' == typeof req.on_error ) {
-						req.on_error( req, res );
+					, destroy: function( req ) {
+
+						console.log( 'Private.entities.destroy', req );
+
+						var target = 0
+						, current = 0
+						, results = []
+						, own_on_success
+						, own_on_complete
+						, own_on_error
+						, a = 0, alen = 0, aitem;
+
+						var own_on_success = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_success ) {
+								req.on_success( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, current );
+							}
+
+						};
+
+						var own_on_complete = function( res, count ) {
+
+							if ( 'function' == typeof req.on_complete ) {
+								req.on_complete( req, results, count );
+							}
+
+						};
+
+						var own_on_error = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_error ) {
+								req.on_error( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, target );
+							}
+
+						};
+
+						if ( Array.isArray( req.data ) ) {
+
+							var a = 0, alen = req.len, aitem;
+							target = alen;
+
+							for( a = 0; a < alen; a += 1 ) {
+								Private.database.node.destroy( { type: 'Place', request: req, on_success: own_on_success, on_error: own_on_error } );
+							}
+
+						} else {
+
+							Private.database.node.destroy( { type: 'Place', request: req, on_success: own_on_success, on_error: own_on_error } );
+
+						}
+
+						return true;
+
 					}
-				};
-				return true;
-			}
-		, create: function( req ) {
+					, update: function( req ) {
 
-				console.log( 'Private.entities.create', req );
+						console.log( 'Private.entities.update', req );
 
-				var target = 0
-				, current = 0
-				, results = []
-				, own_on_success
-				, own_on_complete
-				, own_on_error
-				, a = 0, alen = 0, aitem;
+						var target = 0
+						, current = 0
+						, results = []
+						, own_on_success
+						, own_on_complete
+						, own_on_error
+						, a = 0, alen = 0, aitem;
 
-				var own_on_success = function( res ) {
+						var own_on_success = function( res ) {
 
-					current += 1;
+							current += 1;
 
-					if ( 'function' == typeof req.on_success ) {
-						req.on_success( req, res, current );
+							if ( 'function' == typeof req.on_success ) {
+								req.on_success( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, current );
+							}
+
+						};
+
+						var own_on_complete = function( res, count ) {
+
+							if ( 'function' == typeof req.on_complete ) {
+								req.on_complete( req, results, count );
+							}
+
+						};
+
+						var own_on_error = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_error ) {
+								req.on_error( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, target );
+							}
+
+						};
+
+						if ( Array.isArray( req.data ) ) {
+
+							var a = 0, alen = req.len, aitem;
+							target = alen;
+
+							for( a = 0; a < alen; a += 1 ) {
+								Private.database.node.update( { type: 'Place', request: req, on_success: own_on_success, on_error: own_on_error } );
+							}
+
+						} else {
+
+							Private.database.node.update( { type: 'Place', request: req, on_success: own_on_success, on_error: own_on_error } );
+
+						}
+				
+						return true;
+
 					}
+					, read: function( req ) {
 
-					results.push( res );
+						console.log( 'Private.entities.read', req );
 
-					if ( current === target ) {
-						own_on_complete( res, current );
+						var target = 0
+						, current = 0
+						, results = []
+						, own_on_success
+						, own_on_complete
+						, own_on_error
+						, a = 0, alen = 0, aitem;
+
+						var own_on_success = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_success ) {
+								req.on_success( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, current );
+							}
+
+						};
+
+						var own_on_complete = function( res, count ) {
+
+							if ( 'function' == typeof req.on_complete ) {
+								req.on_complete( req, results, count );
+							}
+
+						};
+
+						var own_on_error = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_error ) {
+								req.on_error( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, target );
+							}
+
+						};
+
+						if ( Array.isArray( req.data ) ) {
+
+							var a = 0, alen = req.len, aitem;
+							target = alen;
+
+							for( a = 0; a < alen; a += 1 ) {
+								Private.database.node.read( { type: 'Place', request: req, on_success: own_on_success, on_error: own_on_error } );
+							}
+
+						} else {
+				
+							Private.database.node.read( { type: 'Place', request: req, on_success: own_on_success, on_error: own_on_error } );
+
+						}
+
+						return true;
+
 					}
-
-				};
-
-				var own_on_complete = function( res, count ) {
-
-					if ( 'function' == typeof req.on_complete ) {
-						req.on_complete( req, results, count );
-					}
-
-				};
-
-				var own_on_error = function( res ) {
-
-					current += 1;
-
-					if ( 'function' == typeof req.on_error ) {
-						req.on_error( req, res, current );
-					}
-
-					results.push( res );
-
-					if ( current === target ) {
-						own_on_complete( res, target );
-					}
-
-				};
-
-				if ( Array.isArray( req.data ) ) {
-
-					var a = 0, alen = req.len, aitem;
-					target = alen;
-
-					for( a = 0; a < alen; a += 1 ) {
-						Private.database.node.create( { type: 'Place', request: req, on_success: own_on_success, on_error: own_on_error } );
-					}
-
-				} else {
-
-					Private.database.node.create( { type: 'Place', request: req, on_success: own_on_success, on_error: own_on_error } );
-
 				}
-			
-				return true;
-
-			}
-		, destroy: function( req ) {
-
-				console.log( 'Private.entities.destroy', req );
-
-				var target = 0
-				, current = 0
-				, results = []
-				, own_on_success
-				, own_on_complete
-				, own_on_error
-				, a = 0, alen = 0, aitem;
-
-				var own_on_success = function( res ) {
-
-					current += 1;
-
-					if ( 'function' == typeof req.on_success ) {
-						req.on_success( req, res, current );
+				, relationship:
+					{ validate: function( req ) {
+						console.log( 'Private.entities validation', req );
+						var own_on_success = function( res ) {
+							if ( 'function' == typeof req.on_success ) {
+								req.on_success( req, res );
+							}
+						};
+						var own_on_complete = function( res ) {
+							if ( 'function' == typeof req.on_complete ) {
+								req.on_complete( req, res );
+							}
+						};
+						var own_on_error = function( res ) {
+							if ( 'function' == typeof req.on_error ) {
+								req.on_error( req, res );
+							}
+						};
+						return true;
 					}
+					, create: function( req ) {
 
-					results.push( res );
+						console.log( 'Private.entities.create', req );
 
-					if ( current === target ) {
-						own_on_complete( res, current );
+						var target = 0
+						, current = 0
+						, results = []
+						, own_on_success
+						, own_on_complete
+						, own_on_error
+						, a = 0, alen = 0, aitem;
+
+						var own_on_success = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_success ) {
+								req.on_success( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, current );
+							}
+
+						};
+
+						var own_on_complete = function( res, count ) {
+
+							if ( 'function' == typeof req.on_complete ) {
+								req.on_complete( req, results, count );
+							}
+
+						};
+
+						var own_on_error = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_error ) {
+								req.on_error( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, target );
+							}
+
+						};
+
+						if ( Array.isArray( req.data ) ) {
+
+							var a = 0, alen = req.len, aitem;
+							target = alen;
+
+							for( a = 0; a < alen; a += 1 ) {
+								Private.database.relationship.create( { type: 'Place', request: req, on_success: own_on_success, on_error: own_on_error } );
+							}
+
+						} else {
+							Private.database.relationship.create( { type: 'Place', request: req, on_success: own_on_success, on_error: own_on_error } );
+
+						}
+					
+						return true;
+
+
 					}
+					, destroy: function( req ) {
 
-				};
+						console.log( 'Private.entities.destroy', req );
 
-				var own_on_complete = function( res, count ) {
+						var target = 0
+						, current = 0
+						, results = []
+						, own_on_success
+						, own_on_complete
+						, own_on_error
+						, a = 0, alen = 0, aitem;
 
-					if ( 'function' == typeof req.on_complete ) {
-						req.on_complete( req, results, count );
+						var own_on_success = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_success ) {
+								req.on_success( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, current );
+							}
+
+						};
+
+						var own_on_complete = function( res, count ) {
+
+							if ( 'function' == typeof req.on_complete ) {
+								req.on_complete( req, results, count );
+							}
+
+						};
+
+						var own_on_error = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_error ) {
+								req.on_error( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, target );
+							}
+
+						};
+
+						if ( Array.isArray( req.data ) ) {
+
+							var a = 0, alen = req.len, aitem;
+							target = alen;
+
+							for( a = 0; a < alen; a += 1 ) {
+								Private.database.relationship.destroy( { type: 'Place', request: req, on_success: own_on_success, on_error: own_on_error } );
+							}
+
+						} else {
+
+							Private.database.relationship.destroy( { type: 'Place', request: req, on_success: own_on_success, on_error: own_on_error } );
+
+						}
+
+						return true;
+
 					}
+					, update: function( req ) {
 
-				};
+						console.log( 'Private.entities.update', req );
 
-				var own_on_error = function( res ) {
+						var target = 0
+						, current = 0
+						, results = []
+						, own_on_success
+						, own_on_complete
+						, own_on_error
+						, a = 0, alen = 0, aitem;
 
-					current += 1;
+						var own_on_success = function( res ) {
 
-					if ( 'function' == typeof req.on_error ) {
-						req.on_error( req, res, current );
+							current += 1;
+
+							if ( 'function' == typeof req.on_success ) {
+								req.on_success( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, current );
+							}
+
+						};
+
+						var own_on_complete = function( res, count ) {
+
+							if ( 'function' == typeof req.on_complete ) {
+								req.on_complete( req, results, count );
+							}
+
+						};
+
+						var own_on_error = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_error ) {
+								req.on_error( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, target );
+							}
+
+						};
+
+						if ( Array.isArray( req.data ) ) {
+
+							var a = 0, alen = req.len, aitem;
+							target = alen;
+
+							for( a = 0; a < alen; a += 1 ) {
+								Private.database.relationship.update( { type: 'Place', request: req, on_success: own_on_success, on_error: own_on_error } );
+							}
+
+						} else {
+
+							Private.database.relationship.update( { type: 'Place', request: req, on_success: own_on_success, on_error: own_on_error } );
+
+						}
+				
+						return true;
+
 					}
+					, read: function( req ) {
 
-					results.push( res );
+						console.log( 'Private.entities.read', req );
 
-					if ( current === target ) {
-						own_on_complete( res, target );
+						var target = 0
+						, current = 0
+						, results = []
+						, own_on_success
+						, own_on_complete
+						, own_on_error
+						, a = 0, alen = 0, aitem;
+
+						var own_on_success = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_success ) {
+								req.on_success( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, current );
+							}
+
+						};
+
+						var own_on_complete = function( res, count ) {
+
+							if ( 'function' == typeof req.on_complete ) {
+								req.on_complete( req, results, count );
+							}
+
+						};
+
+						var own_on_error = function( res ) {
+
+							current += 1;
+
+							if ( 'function' == typeof req.on_error ) {
+								req.on_error( req, res, current );
+							}
+
+							results.push( res );
+
+							if ( current === target ) {
+								own_on_complete( res, target );
+							}
+
+						};
+
+						if ( Array.isArray( req.data ) ) {
+
+							var a = 0, alen = req.len, aitem;
+							target = alen;
+
+							for( a = 0; a < alen; a += 1 ) {
+								Private.database.relationship.read( { type: 'Place', request: req, on_success: own_on_success, on_error: own_on_error } );
+							}
+
+						} else {
+				
+							Private.database.relationship.read( { type: 'Place', request: req, on_success: own_on_success, on_error: own_on_error } );
+
+						}
+
+						return true;
+
 					}
-
-				};
-
-				if ( Array.isArray( req.data ) ) {
-
-					var a = 0, alen = req.len, aitem;
-					target = alen;
-
-					for( a = 0; a < alen; a += 1 ) {
-						Private.database.node.destroy( { type: 'Place', request: req, on_success: own_on_success, on_error: own_on_error } );
-					}
-
-				} else {
-
-					Private.database.node.destroy( { type: 'Place', request: req, on_success: own_on_success, on_error: own_on_error } );
-
 				}
-
-				return true;
-
-			}
-		, update: function( req ) {
-
-				console.log( 'Private.entities.update', req );
-
-				var target = 0
-				, current = 0
-				, results = []
-				, own_on_success
-				, own_on_complete
-				, own_on_error
-				, a = 0, alen = 0, aitem;
-
-				var own_on_success = function( res ) {
-
-					current += 1;
-
-					if ( 'function' == typeof req.on_success ) {
-						req.on_success( req, res, current );
-					}
-
-					results.push( res );
-
-					if ( current === target ) {
-						own_on_complete( res, current );
-					}
-
-				};
-
-				var own_on_complete = function( res, count ) {
-
-					if ( 'function' == typeof req.on_complete ) {
-						req.on_complete( req, results, count );
-					}
-
-				};
-
-				var own_on_error = function( res ) {
-
-					current += 1;
-
-					if ( 'function' == typeof req.on_error ) {
-						req.on_error( req, res, current );
-					}
-
-					results.push( res );
-
-					if ( current === target ) {
-						own_on_complete( res, target );
-					}
-
-				};
-
-				if ( Array.isArray( req.data ) ) {
-
-					var a = 0, alen = req.len, aitem;
-					target = alen;
-
-					for( a = 0; a < alen; a += 1 ) {
-						Private.database.node.update( { type: 'Place', request: req, on_success: own_on_success, on_error: own_on_error } );
-					}
-
-				} else {
-
-					Private.database.node.update( { type: 'Place', request: req, on_success: own_on_success, on_error: own_on_error } );
-
-				}
-		
-				return true;
-
-			}
-		, read: function( req ) {
-
-				console.log( 'Private.entities.read', req );
-
-				var target = 0
-				, current = 0
-				, results = []
-				, own_on_success
-				, own_on_complete
-				, own_on_error
-				, a = 0, alen = 0, aitem;
-
-				var own_on_success = function( res ) {
-
-					current += 1;
-
-					if ( 'function' == typeof req.on_success ) {
-						req.on_success( req, res, current );
-					}
-
-					results.push( res );
-
-					if ( current === target ) {
-						own_on_complete( res, current );
-					}
-
-				};
-
-				var own_on_complete = function( res, count ) {
-
-					if ( 'function' == typeof req.on_complete ) {
-						req.on_complete( req, results, count );
-					}
-
-				};
-
-				var own_on_error = function( res ) {
-
-					current += 1;
-
-					if ( 'function' == typeof req.on_error ) {
-						req.on_error( req, res, current );
-					}
-
-					results.push( res );
-
-					if ( current === target ) {
-						own_on_complete( res, target );
-					}
-
-				};
-
-				if ( Array.isArray( req.data ) ) {
-
-					var a = 0, alen = req.len, aitem;
-					target = alen;
-
-					for( a = 0; a < alen; a += 1 ) {
-						Private.database.node.read( { type: 'Place', request: req, on_success: own_on_success, on_error: own_on_error } );
-					}
-
-				} else {
-		
-					Private.database.node.read( { type: 'Place', request: req, on_success: own_on_success, on_error: own_on_error } );
-
-				}
-
-				return true;
-
 			}
 		} ,
 		{ singular: 'Idea'
@@ -1217,303 +2133,611 @@ var Pulp = ( function() {
 			{ id: 'string'
 			, display: 'string'
 			}
-		, validate: function( req ) {
-				console.log( 'Private.entities validation', req );
-				var own_on_success = function( res ) {
-					if ( 'function' == typeof req.on_success ) {
-						req.on_success( req, res );
-					}
-				};
-				var own_on_complete = function( res ) {
-					if ( 'function' == typeof req.on_complete ) {
-						req.on_complete( req, res );
-					}
-				};
-				var own_on_error = function( res ) {
-					if ( 'function' == typeof req.on_error ) {
-						req.on_error( req, res );
-					}
-				};
-				return true;
-			}
-		, create: function( req ) {
+		, schema:
+			{ node:
+				{ validate: function( req ) {
+					console.log( 'Private.entities validation', req );
+					var own_on_success = function( res ) {
+						if ( 'function' == typeof req.on_success ) {
+							req.on_success( req, res );
+						}
+					};
+					var own_on_complete = function( res ) {
+						if ( 'function' == typeof req.on_complete ) {
+							req.on_complete( req, res );
+						}
+					};
+					var own_on_error = function( res ) {
+						if ( 'function' == typeof req.on_error ) {
+							req.on_error( req, res );
+						}
+					};
+					return true;
+				}
+				, create: function( req ) {
 
-				console.log( 'Private.entities.create', req );
+					console.log( 'Private.entities.create', req );
 
-				var target = 0
-				, current = 0
-				, results = []
-				, own_on_success
-				, own_on_complete
-				, own_on_error
-				, a = 0, alen = 0, aitem;
+					var target = 0
+					, current = 0
+					, results = []
+					, own_on_success
+					, own_on_complete
+					, own_on_error
+					, a = 0, alen = 0, aitem;
 
-				var own_on_success = function( res ) {
+					var own_on_success = function( res ) {
 
-					current += 1;
+						current += 1;
 
-					if ( 'function' == typeof req.on_success ) {
-						req.on_success( req, res, current );
-					}
+						if ( 'function' == typeof req.on_success ) {
+							req.on_success( req, res, current );
+						}
 
-					results.push( res );
+						results.push( res );
 
-					if ( current === target ) {
-						own_on_complete( res, current );
-					}
+						if ( current === target ) {
+							own_on_complete( res, current );
+						}
 
-				};
+					};
 
-				var own_on_complete = function( res, count ) {
+					var own_on_complete = function( res, count ) {
 
-					if ( 'function' == typeof req.on_complete ) {
-						req.on_complete( req, results, count );
-					}
+						if ( 'function' == typeof req.on_complete ) {
+							req.on_complete( req, results, count );
+						}
 
-				};
+					};
 
-				var own_on_error = function( res ) {
+					var own_on_error = function( res ) {
 
-					current += 1;
+						current += 1;
 
-					if ( 'function' == typeof req.on_error ) {
-						req.on_error( req, res, current );
-					}
+						if ( 'function' == typeof req.on_error ) {
+							req.on_error( req, res, current );
+						}
 
-					results.push( res );
+						results.push( res );
 
-					if ( current === target ) {
-						own_on_complete( res, target );
-					}
+						if ( current === target ) {
+							own_on_complete( res, target );
+						}
 
-				};
+					};
 
-				if ( Array.isArray( req.data ) ) {
+					if ( Array.isArray( req.data ) ) {
 
-					var a = 0, alen = req.len, aitem;
-					target = alen;
+						var a = 0, alen = req.len, aitem;
+						target = alen;
 
-					for( a = 0; a < alen; a += 1 ) {
+						for( a = 0; a < alen; a += 1 ) {
+							Private.database.node.create( { type: 'Idea', request: req, on_success: own_on_success, on_error: own_on_error } );
+						}
+
+					} else {
+
 						Private.database.node.create( { type: 'Idea', request: req, on_success: own_on_success, on_error: own_on_error } );
+
 					}
-
-				} else {
-
-					Private.database.node.create( { type: 'Idea', request: req, on_success: own_on_success, on_error: own_on_error } );
+				
+					return true;
 
 				}
-			
-				return true;
+				, destroy: function( req ) {
 
-			}
-		, destroy: function( req ) {
+					console.log( 'Private.entities.destroy', req );
 
-				console.log( 'Private.entities.destroy', req );
+					var target = 0
+					, current = 0
+					, results = []
+					, own_on_success
+					, own_on_complete
+					, own_on_error
+					, a = 0, alen = 0, aitem;
 
-				var target = 0
-				, current = 0
-				, results = []
-				, own_on_success
-				, own_on_complete
-				, own_on_error
-				, a = 0, alen = 0, aitem;
+					var own_on_success = function( res ) {
 
-				var own_on_success = function( res ) {
+						current += 1;
 
-					current += 1;
+						if ( 'function' == typeof req.on_success ) {
+							req.on_success( req, res, current );
+						}
 
-					if ( 'function' == typeof req.on_success ) {
-						req.on_success( req, res, current );
-					}
+						results.push( res );
 
-					results.push( res );
+						if ( current === target ) {
+							own_on_complete( res, current );
+						}
 
-					if ( current === target ) {
-						own_on_complete( res, current );
-					}
+					};
 
-				};
+					var own_on_complete = function( res, count ) {
 
-				var own_on_complete = function( res, count ) {
+						if ( 'function' == typeof req.on_complete ) {
+							req.on_complete( req, results, count );
+						}
 
-					if ( 'function' == typeof req.on_complete ) {
-						req.on_complete( req, results, count );
-					}
+					};
 
-				};
+					var own_on_error = function( res ) {
 
-				var own_on_error = function( res ) {
+						current += 1;
 
-					current += 1;
+						if ( 'function' == typeof req.on_error ) {
+							req.on_error( req, res, current );
+						}
 
-					if ( 'function' == typeof req.on_error ) {
-						req.on_error( req, res, current );
-					}
+						results.push( res );
 
-					results.push( res );
+						if ( current === target ) {
+							own_on_complete( res, target );
+						}
 
-					if ( current === target ) {
-						own_on_complete( res, target );
-					}
+					};
 
-				};
+					if ( Array.isArray( req.data ) ) {
 
-				if ( Array.isArray( req.data ) ) {
+						var a = 0, alen = req.len, aitem;
+						target = alen;
 
-					var a = 0, alen = req.len, aitem;
-					target = alen;
+						for( a = 0; a < alen; a += 1 ) {
+							Private.database.node.destroy( { type: 'Idea', request: req, on_success: own_on_success, on_error: own_on_error } );
+						}
 
-					for( a = 0; a < alen; a += 1 ) {
+					} else {
+
 						Private.database.node.destroy( { type: 'Idea', request: req, on_success: own_on_success, on_error: own_on_error } );
+
 					}
 
-				} else {
-
-					Private.database.node.destroy( { type: 'Idea', request: req, on_success: own_on_success, on_error: own_on_error } );
+					return true;
 
 				}
+				, update: function( req ) {
 
-				return true;
+					console.log( 'Private.entities.update', req );
 
-			}
-		, update: function( req ) {
+					var target = 0
+					, current = 0
+					, results = []
+					, own_on_success
+					, own_on_complete
+					, own_on_error
+					, a = 0, alen = 0, aitem;
 
-				console.log( 'Private.entities.update', req );
+					var own_on_success = function( res ) {
 
-				var target = 0
-				, current = 0
-				, results = []
-				, own_on_success
-				, own_on_complete
-				, own_on_error
-				, a = 0, alen = 0, aitem;
+						current += 1;
 
-				var own_on_success = function( res ) {
+						if ( 'function' == typeof req.on_success ) {
+							req.on_success( req, res, current );
+						}
 
-					current += 1;
+						results.push( res );
 
-					if ( 'function' == typeof req.on_success ) {
-						req.on_success( req, res, current );
-					}
+						if ( current === target ) {
+							own_on_complete( res, current );
+						}
 
-					results.push( res );
+					};
 
-					if ( current === target ) {
-						own_on_complete( res, current );
-					}
+					var own_on_complete = function( res, count ) {
 
-				};
+						if ( 'function' == typeof req.on_complete ) {
+							req.on_complete( req, results, count );
+						}
 
-				var own_on_complete = function( res, count ) {
+					};
 
-					if ( 'function' == typeof req.on_complete ) {
-						req.on_complete( req, results, count );
-					}
+					var own_on_error = function( res ) {
 
-				};
+						current += 1;
 
-				var own_on_error = function( res ) {
+						if ( 'function' == typeof req.on_error ) {
+							req.on_error( req, res, current );
+						}
 
-					current += 1;
+						results.push( res );
 
-					if ( 'function' == typeof req.on_error ) {
-						req.on_error( req, res, current );
-					}
+						if ( current === target ) {
+							own_on_complete( res, target );
+						}
 
-					results.push( res );
+					};
 
-					if ( current === target ) {
-						own_on_complete( res, target );
-					}
+					if ( Array.isArray( req.data ) ) {
 
-				};
+						var a = 0, alen = req.len, aitem;
+						target = alen;
 
-				if ( Array.isArray( req.data ) ) {
+						for( a = 0; a < alen; a += 1 ) {
+							Private.database.node.update( { type: 'Idea', request: req, on_success: own_on_success, on_error: own_on_error } );
+						}
 
-					var a = 0, alen = req.len, aitem;
-					target = alen;
+					} else {
 
-					for( a = 0; a < alen; a += 1 ) {
 						Private.database.node.update( { type: 'Idea', request: req, on_success: own_on_success, on_error: own_on_error } );
+
 					}
-
-				} else {
-
-					Private.database.node.update( { type: 'Idea', request: req, on_success: own_on_success, on_error: own_on_error } );
+			
+					return true;
 
 				}
-		
-				return true;
+				, read: function( req ) {
 
-			}
-		, read: function( req ) {
+					console.log( 'Private.entities.read', req );
 
-				console.log( 'Private.entities.read', req );
+					var target = 0
+					, current = 0
+					, results = []
+					, own_on_success
+					, own_on_complete
+					, own_on_error
+					, a = 0, alen = 0, aitem;
 
-				var target = 0
-				, current = 0
-				, results = []
-				, own_on_success
-				, own_on_complete
-				, own_on_error
-				, a = 0, alen = 0, aitem;
+					var own_on_success = function( res ) {
 
-				var own_on_success = function( res ) {
+						current += 1;
 
-					current += 1;
+						if ( 'function' == typeof req.on_success ) {
+							req.on_success( req, res, current );
+						}
 
-					if ( 'function' == typeof req.on_success ) {
-						req.on_success( req, res, current );
-					}
+						results.push( res );
 
-					results.push( res );
+						if ( current === target ) {
+							own_on_complete( res, current );
+						}
 
-					if ( current === target ) {
-						own_on_complete( res, current );
-					}
+					};
 
-				};
+					var own_on_complete = function( res, count ) {
 
-				var own_on_complete = function( res, count ) {
+						if ( 'function' == typeof req.on_complete ) {
+							req.on_complete( req, results, count );
+						}
 
-					if ( 'function' == typeof req.on_complete ) {
-						req.on_complete( req, results, count );
-					}
+					};
 
-				};
+					var own_on_error = function( res ) {
 
-				var own_on_error = function( res ) {
+						current += 1;
 
-					current += 1;
+						if ( 'function' == typeof req.on_error ) {
+							req.on_error( req, res, current );
+						}
 
-					if ( 'function' == typeof req.on_error ) {
-						req.on_error( req, res, current );
-					}
+						results.push( res );
 
-					results.push( res );
+						if ( current === target ) {
+							own_on_complete( res, target );
+						}
 
-					if ( current === target ) {
-						own_on_complete( res, target );
-					}
+					};
 
-				};
+					if ( Array.isArray( req.data ) ) {
 
-				if ( Array.isArray( req.data ) ) {
+						var a = 0, alen = req.len, aitem;
+						target = alen;
 
-					var a = 0, alen = req.len, aitem;
-					target = alen;
+						for( a = 0; a < alen; a += 1 ) {
+							Private.database.node.read( { type: 'Idea', request: req, on_success: own_on_success, on_error: own_on_error } );
+						}
 
-					for( a = 0; a < alen; a += 1 ) {
+					} else {
+			
 						Private.database.node.read( { type: 'Idea', request: req, on_success: own_on_success, on_error: own_on_error } );
+
 					}
 
-				} else {
-		
-					Private.database.node.read( { type: 'Idea', request: req, on_success: own_on_success, on_error: own_on_error } );
+					return true;
+				
+					}
+				}, relationship:
+					{ validate: function( req ) {
+							console.log( 'Private.entities validation', req );
+							var own_on_success = function( res ) {
+								if ( 'function' == typeof req.on_success ) {
+									req.on_success( req, res );
+								}
+							};
+							var own_on_complete = function( res ) {
+								if ( 'function' == typeof req.on_complete ) {
+									req.on_complete( req, res );
+								}
+							};
+							var own_on_error = function( res ) {
+								if ( 'function' == typeof req.on_error ) {
+									req.on_error( req, res );
+								}
+							};
+							return true;
+						}
+						, create: function( req ) {
 
-				}
+							console.log( 'Private.entities.create', req );
 
-				return true;
+							var target = 0
+							, current = 0
+							, results = []
+							, own_on_success
+							, own_on_complete
+							, own_on_error
+							, a = 0, alen = 0, aitem;
+
+							var own_on_success = function( res ) {
+
+								current += 1;
+
+								if ( 'function' == typeof req.on_success ) {
+									req.on_success( req, res, current );
+								}
+
+								results.push( res );
+
+								if ( current === target ) {
+									own_on_complete( res, current );
+								}
+
+							};
+
+							var own_on_complete = function( res, count ) {
+
+								if ( 'function' == typeof req.on_complete ) {
+									req.on_complete( req, results, count );
+								}
+
+							};
+
+							var own_on_error = function( res ) {
+
+								current += 1;
+
+								if ( 'function' == typeof req.on_error ) {
+									req.on_error( req, res, current );
+								}
+
+								results.push( res );
+
+								if ( current === target ) {
+									own_on_complete( res, target );
+								}
+
+							};
+
+							if ( Array.isArray( req.data ) ) {
+
+								var a = 0, alen = req.len, aitem;
+								target = alen;
+
+								for( a = 0; a < alen; a += 1 ) {
+									Private.database.relationship.create( { type: 'Idea', request: req, on_success: own_on_success, on_error: own_on_error } );
+								}
+
+							} else {
+								Private.database.relationship.create( { type: 'Idea', request: req, on_success: own_on_success, on_error: own_on_error } );
+
+							}
+						
+							return true;
+
+
+						}
+						, destroy: function( req ) {
+
+							console.log( 'Private.entities.destroy', req );
+
+							var target = 0
+							, current = 0
+							, results = []
+							, own_on_success
+							, own_on_complete
+							, own_on_error
+							, a = 0, alen = 0, aitem;
+
+							var own_on_success = function( res ) {
+
+								current += 1;
+
+								if ( 'function' == typeof req.on_success ) {
+									req.on_success( req, res, current );
+								}
+
+								results.push( res );
+
+								if ( current === target ) {
+									own_on_complete( res, current );
+								}
+
+							};
+
+							var own_on_complete = function( res, count ) {
+
+								if ( 'function' == typeof req.on_complete ) {
+									req.on_complete( req, results, count );
+								}
+
+							};
+
+							var own_on_error = function( res ) {
+
+								current += 1;
+
+								if ( 'function' == typeof req.on_error ) {
+									req.on_error( req, res, current );
+								}
+
+								results.push( res );
+
+								if ( current === target ) {
+									own_on_complete( res, target );
+								}
+
+							};
+
+							if ( Array.isArray( req.data ) ) {
+
+								var a = 0, alen = req.len, aitem;
+								target = alen;
+
+								for( a = 0; a < alen; a += 1 ) {
+									Private.database.relationship.destroy( { type: 'Idea', request: req, on_success: own_on_success, on_error: own_on_error } );
+								}
+
+							} else {
+
+								Private.database.relationship.destroy( { type: 'Idea', request: req, on_success: own_on_success, on_error: own_on_error } );
+
+							}
+
+							return true;
+
+						}
+						, update: function( req ) {
+
+							console.log( 'Private.entities.update', req );
+
+							var target = 0
+							, current = 0
+							, results = []
+							, own_on_success
+							, own_on_complete
+							, own_on_error
+							, a = 0, alen = 0, aitem;
+
+							var own_on_success = function( res ) {
+
+								current += 1;
+
+								if ( 'function' == typeof req.on_success ) {
+									req.on_success( req, res, current );
+								}
+
+								results.push( res );
+
+								if ( current === target ) {
+									own_on_complete( res, current );
+								}
+
+							};
+
+							var own_on_complete = function( res, count ) {
+
+								if ( 'function' == typeof req.on_complete ) {
+									req.on_complete( req, results, count );
+								}
+
+							};
+
+							var own_on_error = function( res ) {
+
+								current += 1;
+
+								if ( 'function' == typeof req.on_error ) {
+									req.on_error( req, res, current );
+								}
+
+								results.push( res );
+
+								if ( current === target ) {
+									own_on_complete( res, target );
+								}
+
+							};
+
+							if ( Array.isArray( req.data ) ) {
+
+								var a = 0, alen = req.len, aitem;
+								target = alen;
+
+								for( a = 0; a < alen; a += 1 ) {
+									Private.database.relationship.update( { type: 'Idea', request: req, on_success: own_on_success, on_error: own_on_error } );
+								}
+
+							} else {
+
+								Private.database.relationship.update( { type: 'Idea', request: req, on_success: own_on_success, on_error: own_on_error } );
+
+							}
+					
+							return true;
+
+						}
+						, read: function( req ) {
+
+							console.log( 'Private.entities.read', req );
+
+							var target = 0
+							, current = 0
+							, results = []
+							, own_on_success
+							, own_on_complete
+							, own_on_error
+							, a = 0, alen = 0, aitem;
+
+							var own_on_success = function( res ) {
+
+								current += 1;
+
+								if ( 'function' == typeof req.on_success ) {
+									req.on_success( req, res, current );
+								}
+
+								results.push( res );
+
+								if ( current === target ) {
+									own_on_complete( res, current );
+								}
+
+							};
+
+							var own_on_complete = function( res, count ) {
+
+								if ( 'function' == typeof req.on_complete ) {
+									req.on_complete( req, results, count );
+								}
+
+							};
+
+							var own_on_error = function( res ) {
+
+								current += 1;
+
+								if ( 'function' == typeof req.on_error ) {
+									req.on_error( req, res, current );
+								}
+
+								results.push( res );
+
+								if ( current === target ) {
+									own_on_complete( res, target );
+								}
+
+							};
+
+							if ( Array.isArray( req.data ) ) {
+
+								var a = 0, alen = req.len, aitem;
+								target = alen;
+
+								for( a = 0; a < alen; a += 1 ) {
+									Private.database.relationship.read( { type: 'Idea', request: req, on_success: own_on_success, on_error: own_on_error } );
+								}
+
+							} else {
+					
+								Private.database.relationship.read( { type: 'Idea', request: req, on_success: own_on_success, on_error: own_on_error } );
+
+							}
+
+							return true;
+
+						}
+
+					}
+
+					
 
 			}
 		} ,
@@ -1549,310 +2773,615 @@ var Pulp = ( function() {
 			{ id: 'string'
 			, display: 'string'
 			}
-		, validate: function( req ) {
+		, schema: 
+			{ node:
+				{ validate: function( req ) {
 
-				console.log( 'Private.entities validation', req );
+					console.log( 'Private.entities validation', req );
 
-				var own_on_success = function( res ) {
-					if ( 'function' == typeof req.on_success ) {
-						req.on_success( req, res );
-					}
-				};
+					var own_on_success = function( res ) {
+						if ( 'function' == typeof req.on_success ) {
+							req.on_success( req, res );
+						}
+					};
 
-				var own_on_complete = function( res ) {
-					if ( 'function' == typeof req.on_complete ) {
-						req.on_complete( req, res );
-					}
-				};
+					var own_on_complete = function( res ) {
+						if ( 'function' == typeof req.on_complete ) {
+							req.on_complete( req, res );
+						}
+					};
 
-				var own_on_error = function( res ) {
-					if ( 'function' == typeof req.on_error ) {
-						req.on_error( req, res );
-					}
-				};
+					var own_on_error = function( res ) {
+						if ( 'function' == typeof req.on_error ) {
+							req.on_error( req, res );
+						}
+					};
 
-				return true;
+					return true;
 
-			}
-		, create: function( req ) {
+				}
+				, create: function( req ) {
 
-				console.log( 'Private.entities.create', req );
+					console.log( 'Private.entities.create', req );
 
-				var target = 0
-				, current = 0
-				, results = []
-				, own_on_success
-				, own_on_complete
-				, own_on_error
-				, a = 0, alen = 0, aitem;
+					var target = 0
+					, current = 0
+					, results = []
+					, own_on_success
+					, own_on_complete
+					, own_on_error
+					, a = 0, alen = 0, aitem;
 
-				var own_on_success = function( res ) {
+					var own_on_success = function( res ) {
 
-					current += 1;
+						current += 1;
 
-					if ( 'function' == typeof req.on_success ) {
-						req.on_success( req, res, current );
-					}
+						if ( 'function' == typeof req.on_success ) {
+							req.on_success( req, res, current );
+						}
 
-					results.push( res );
+						results.push( res );
 
-					if ( current === target ) {
-						own_on_complete( res, current );
-					}
+						if ( current === target ) {
+							own_on_complete( res, current );
+						}
 
-				};
+					};
 
-				var own_on_complete = function( res, count ) {
+					var own_on_complete = function( res, count ) {
 
-					if ( 'function' == typeof req.on_complete ) {
-						req.on_complete( req, results, count );
-					}
+						if ( 'function' == typeof req.on_complete ) {
+							req.on_complete( req, results, count );
+						}
 
-				};
+					};
 
-				var own_on_error = function( res ) {
+					var own_on_error = function( res ) {
 
-					current += 1;
+						current += 1;
 
-					if ( 'function' == typeof req.on_error ) {
-						req.on_error( req, res, current );
-					}
+						if ( 'function' == typeof req.on_error ) {
+							req.on_error( req, res, current );
+						}
 
-					results.push( res );
+						results.push( res );
 
-					if ( current === target ) {
-						own_on_complete( res, target );
-					}
+						if ( current === target ) {
+							own_on_complete( res, target );
+						}
 
-				};
+					};
 
-				if ( Array.isArray( req.data ) ) {
+					if ( Array.isArray( req.data ) ) {
 
-					var a = 0, alen = req.len, aitem;
-					target = alen;
+						var a = 0, alen = req.len, aitem;
+						target = alen;
 
-					for( a = 0; a < alen; a += 1 ) {
+						for( a = 0; a < alen; a += 1 ) {
+							Private.database.node.create( { type: 'Thing', request: req, on_success: own_on_success, on_error: own_on_error } );
+						}
+
+					} else {
+
 						Private.database.node.create( { type: 'Thing', request: req, on_success: own_on_success, on_error: own_on_error } );
+
 					}
-
-				} else {
-
-					Private.database.node.create( { type: 'Thing', request: req, on_success: own_on_success, on_error: own_on_error } );
+				
+					return true;
 
 				}
-			
-				return true;
+				, destroy: function( req ) {
 
-			}
-		, destroy: function( req ) {
+					console.log( 'Private.entities.destroy', req );
 
-				console.log( 'Private.entities.destroy', req );
+					var target = 0
+					, current = 0
+					, results = []
+					, own_on_success
+					, own_on_complete
+					, own_on_error
+					, a = 0, alen = 0, aitem;
 
-				var target = 0
-				, current = 0
-				, results = []
-				, own_on_success
-				, own_on_complete
-				, own_on_error
-				, a = 0, alen = 0, aitem;
+					var own_on_success = function( res ) {
 
-				var own_on_success = function( res ) {
+						current += 1;
 
-					current += 1;
+						if ( 'function' == typeof req.on_success ) {
+							req.on_success( req, res, current );
+						}
 
-					if ( 'function' == typeof req.on_success ) {
-						req.on_success( req, res, current );
-					}
+						results.push( res );
 
-					results.push( res );
+						if ( current === target ) {
+							own_on_complete( res, current );
+						}
 
-					if ( current === target ) {
-						own_on_complete( res, current );
-					}
+					};
 
-				};
+					var own_on_complete = function( res, count ) {
 
-				var own_on_complete = function( res, count ) {
+						if ( 'function' == typeof req.on_complete ) {
+							req.on_complete( req, results, count );
+						}
 
-					if ( 'function' == typeof req.on_complete ) {
-						req.on_complete( req, results, count );
-					}
+					};
 
-				};
+					var own_on_error = function( res ) {
 
-				var own_on_error = function( res ) {
+						current += 1;
 
-					current += 1;
+						if ( 'function' == typeof req.on_error ) {
+							req.on_error( req, res, current );
+						}
 
-					if ( 'function' == typeof req.on_error ) {
-						req.on_error( req, res, current );
-					}
+						results.push( res );
 
-					results.push( res );
+						if ( current === target ) {
+							own_on_complete( res, target );
+						}
 
-					if ( current === target ) {
-						own_on_complete( res, target );
-					}
+					};
 
-				};
+					if ( Array.isArray( req.data ) ) {
 
-				if ( Array.isArray( req.data ) ) {
+						var a = 0, alen = req.len, aitem;
+						target = alen;
 
-					var a = 0, alen = req.len, aitem;
-					target = alen;
+						for( a = 0; a < alen; a += 1 ) {
+							Private.database.node.destroy( { type: 'Thing', request: req, on_success: own_on_success, on_error: own_on_error } );
+						}
 
-					for( a = 0; a < alen; a += 1 ) {
+					} else {
+
 						Private.database.node.destroy( { type: 'Thing', request: req, on_success: own_on_success, on_error: own_on_error } );
+
 					}
 
-				} else {
-
-					Private.database.node.destroy( { type: 'Thing', request: req, on_success: own_on_success, on_error: own_on_error } );
+					return true;
 
 				}
+				, update: function( req ) {
 
-				return true;
+					console.log( 'Private.entities.update', req );
 
-			}
-		, update: function( req ) {
+					var target = 0
+					, current = 0
+					, results = []
+					, own_on_success
+					, own_on_complete
+					, own_on_error
+					, a = 0, alen = 0, aitem;
 
-				console.log( 'Private.entities.update', req );
+					var own_on_success = function( res ) {
 
-				var target = 0
-				, current = 0
-				, results = []
-				, own_on_success
-				, own_on_complete
-				, own_on_error
-				, a = 0, alen = 0, aitem;
+						current += 1;
 
-				var own_on_success = function( res ) {
+						if ( 'function' == typeof req.on_success ) {
+							req.on_success( req, res, current );
+						}
 
-					current += 1;
+						results.push( res );
 
-					if ( 'function' == typeof req.on_success ) {
-						req.on_success( req, res, current );
-					}
+						if ( current === target ) {
+							own_on_complete( res, current );
+						}
 
-					results.push( res );
+					};
 
-					if ( current === target ) {
-						own_on_complete( res, current );
-					}
+					var own_on_complete = function( res, count ) {
 
-				};
+						if ( 'function' == typeof req.on_complete ) {
+							req.on_complete( req, results, count );
+						}
 
-				var own_on_complete = function( res, count ) {
+					};
 
-					if ( 'function' == typeof req.on_complete ) {
-						req.on_complete( req, results, count );
-					}
+					var own_on_error = function( res ) {
 
-				};
+						current += 1;
 
-				var own_on_error = function( res ) {
+						if ( 'function' == typeof req.on_error ) {
+							req.on_error( req, res, current );
+						}
 
-					current += 1;
+						results.push( res );
 
-					if ( 'function' == typeof req.on_error ) {
-						req.on_error( req, res, current );
-					}
+						if ( current === target ) {
+							own_on_complete( res, target );
+						}
 
-					results.push( res );
+					};
 
-					if ( current === target ) {
-						own_on_complete( res, target );
-					}
+					if ( Array.isArray( req.data ) ) {
 
-				};
+						var a = 0, alen = req.len, aitem;
+						target = alen;
 
-				if ( Array.isArray( req.data ) ) {
+						for( a = 0; a < alen; a += 1 ) {
+							Private.database.node.update( { type: 'Thing', request: req, on_success: own_on_success, on_error: own_on_error } );
+						}
 
-					var a = 0, alen = req.len, aitem;
-					target = alen;
+					} else {
 
-					for( a = 0; a < alen; a += 1 ) {
 						Private.database.node.update( { type: 'Thing', request: req, on_success: own_on_success, on_error: own_on_error } );
+
 					}
-
-				} else {
-
-					Private.database.node.update( { type: 'Thing', request: req, on_success: own_on_success, on_error: own_on_error } );
+			
+					return true;
 
 				}
-		
-				return true;
+				, read: function( req ) {
 
-			}
-		, read: function( req ) {
+					console.log( 'Private.entities.read', req );
 
-				console.log( 'Private.entities.read', req );
+					var target = 0
+					, current = 0
+					, results = []
+					, own_on_success
+					, own_on_complete
+					, own_on_error
+					, a = 0, alen = 0, aitem;
 
-				var target = 0
-				, current = 0
-				, results = []
-				, own_on_success
-				, own_on_complete
-				, own_on_error
-				, a = 0, alen = 0, aitem;
+					var own_on_success = function( res ) {
 
-				var own_on_success = function( res ) {
+						current += 1;
 
-					current += 1;
+						if ( 'function' == typeof req.on_success ) {
+							req.on_success( req, res, current );
+						}
 
-					if ( 'function' == typeof req.on_success ) {
-						req.on_success( req, res, current );
-					}
+						results.push( res );
 
-					results.push( res );
+						if ( current === target ) {
+							own_on_complete( res, current );
+						}
 
-					if ( current === target ) {
-						own_on_complete( res, current );
-					}
+					};
 
-				};
+					var own_on_complete = function( res, count ) {
 
-				var own_on_complete = function( res, count ) {
+						if ( 'function' == typeof req.on_complete ) {
+							req.on_complete( req, results, count );
+						}
 
-					if ( 'function' == typeof req.on_complete ) {
-						req.on_complete( req, results, count );
-					}
+					};
 
-				};
+					var own_on_error = function( res ) {
 
-				var own_on_error = function( res ) {
+						current += 1;
 
-					current += 1;
+						if ( 'function' == typeof req.on_error ) {
+							req.on_error( req, res, current );
+						}
 
-					if ( 'function' == typeof req.on_error ) {
-						req.on_error( req, res, current );
-					}
+						results.push( res );
 
-					results.push( res );
+						if ( current === target ) {
+							own_on_complete( res, target );
+						}
 
-					if ( current === target ) {
-						own_on_complete( res, target );
-					}
+					};
 
-				};
+					if ( Array.isArray( req.data ) ) {
 
-				if ( Array.isArray( req.data ) ) {
+						var a = 0, alen = req.len, aitem;
+						target = alen;
+						for( a = 0; a < alen; a += 1 ) {
+							Private.database.node.read( { type: 'Thing', request: req, on_success: own_on_success, on_error: own_on_error } );
+						}
 
-					var a = 0, alen = req.len, aitem;
-					target = alen;
-					for( a = 0; a < alen; a += 1 ) {
+					} else {
+			
 						Private.database.node.read( { type: 'Thing', request: req, on_success: own_on_success, on_error: own_on_error } );
+
 					}
 
-				} else {
-		
-					Private.database.node.read( { type: 'Thing', request: req, on_success: own_on_success, on_error: own_on_error } );
+					return true;
 
 				}
+			}, relationship:
+				{ validate: function( req ) {
+					console.log( 'Private.entities validation', req );
+					var own_on_success = function( res ) {
+						if ( 'function' == typeof req.on_success ) {
+							req.on_success( req, res );
+						}
+					};
+					var own_on_complete = function( res ) {
+						if ( 'function' == typeof req.on_complete ) {
+							req.on_complete( req, res );
+						}
+					};
+					var own_on_error = function( res ) {
+						if ( 'function' == typeof req.on_error ) {
+							req.on_error( req, res );
+						}
+					};
+					return true;
+				}
+				, create: function( req ) {
 
-				return true;
+					console.log( 'Private.entities.create', req );
+
+					var target = 0
+					, current = 0
+					, results = []
+					, own_on_success
+					, own_on_complete
+					, own_on_error
+					, a = 0, alen = 0, aitem;
+
+					var own_on_success = function( res ) {
+
+						current += 1;
+
+						if ( 'function' == typeof req.on_success ) {
+							req.on_success( req, res, current );
+						}
+
+						results.push( res );
+
+						if ( current === target ) {
+							own_on_complete( res, current );
+						}
+
+					};
+
+					var own_on_complete = function( res, count ) {
+
+						if ( 'function' == typeof req.on_complete ) {
+							req.on_complete( req, results, count );
+						}
+
+					};
+
+					var own_on_error = function( res ) {
+
+						current += 1;
+
+						if ( 'function' == typeof req.on_error ) {
+							req.on_error( req, res, current );
+						}
+
+						results.push( res );
+
+						if ( current === target ) {
+							own_on_complete( res, target );
+						}
+
+					};
+
+					if ( Array.isArray( req.data ) ) {
+
+						var a = 0, alen = req.len, aitem;
+						target = alen;
+
+						for( a = 0; a < alen; a += 1 ) {
+							Private.database.relationship.create( { type: 'Thing', request: req, on_success: own_on_success, on_error: own_on_error } );
+						}
+
+					} else {
+						Private.database.relationship.create( { type: 'Thing', request: req, on_success: own_on_success, on_error: own_on_error } );
+
+					}
+				
+					return true;
+
+
+				}
+				, destroy: function( req ) {
+
+					console.log( 'Private.entities.destroy', req );
+
+					var target = 0
+					, current = 0
+					, results = []
+					, own_on_success
+					, own_on_complete
+					, own_on_error
+					, a = 0, alen = 0, aitem;
+
+					var own_on_success = function( res ) {
+
+						current += 1;
+
+						if ( 'function' == typeof req.on_success ) {
+							req.on_success( req, res, current );
+						}
+
+						results.push( res );
+
+						if ( current === target ) {
+							own_on_complete( res, current );
+						}
+
+					};
+
+					var own_on_complete = function( res, count ) {
+
+						if ( 'function' == typeof req.on_complete ) {
+							req.on_complete( req, results, count );
+						}
+
+					};
+
+					var own_on_error = function( res ) {
+
+						current += 1;
+
+						if ( 'function' == typeof req.on_error ) {
+							req.on_error( req, res, current );
+						}
+
+						results.push( res );
+
+						if ( current === target ) {
+							own_on_complete( res, target );
+						}
+
+					};
+
+					if ( Array.isArray( req.data ) ) {
+
+						var a = 0, alen = req.len, aitem;
+						target = alen;
+
+						for( a = 0; a < alen; a += 1 ) {
+							Private.database.relationship.destroy( { type: 'Thing', request: req, on_success: own_on_success, on_error: own_on_error } );
+						}
+
+					} else {
+
+						Private.database.relationship.destroy( { type: 'Thing', request: req, on_success: own_on_success, on_error: own_on_error } );
+
+					}
+
+					return true;
+
+				}
+				, update: function( req ) {
+
+					console.log( 'Private.entities.update', req );
+
+					var target = 0
+					, current = 0
+					, results = []
+					, own_on_success
+					, own_on_complete
+					, own_on_error
+					, a = 0, alen = 0, aitem;
+
+					var own_on_success = function( res ) {
+
+						current += 1;
+
+						if ( 'function' == typeof req.on_success ) {
+							req.on_success( req, res, current );
+						}
+
+						results.push( res );
+
+						if ( current === target ) {
+							own_on_complete( res, current );
+						}
+
+					};
+
+					var own_on_complete = function( res, count ) {
+
+						if ( 'function' == typeof req.on_complete ) {
+							req.on_complete( req, results, count );
+						}
+
+					};
+
+					var own_on_error = function( res ) {
+
+						current += 1;
+
+						if ( 'function' == typeof req.on_error ) {
+							req.on_error( req, res, current );
+						}
+
+						results.push( res );
+
+						if ( current === target ) {
+							own_on_complete( res, target );
+						}
+
+					};
+
+					if ( Array.isArray( req.data ) ) {
+
+						var a = 0, alen = req.len, aitem;
+						target = alen;
+
+						for( a = 0; a < alen; a += 1 ) {
+							Private.database.relationship.update( { type: 'Thing', request: req, on_success: own_on_success, on_error: own_on_error } );
+						}
+
+					} else {
+
+						Private.database.relationship.update( { type: 'Thing', request: req, on_success: own_on_success, on_error: own_on_error } );
+
+					}
+			
+					return true;
+
+				}
+				, read: function( req ) {
+
+					console.log( 'Private.entities.read', req );
+
+					var target = 0
+					, current = 0
+					, results = []
+					, own_on_success
+					, own_on_complete
+					, own_on_error
+					, a = 0, alen = 0, aitem;
+
+					var own_on_success = function( res ) {
+
+						current += 1;
+
+						if ( 'function' == typeof req.on_success ) {
+							req.on_success( req, res, current );
+						}
+
+						results.push( res );
+
+						if ( current === target ) {
+							own_on_complete( res, current );
+						}
+
+					};
+
+					var own_on_complete = function( res, count ) {
+
+						if ( 'function' == typeof req.on_complete ) {
+							req.on_complete( req, results, count );
+						}
+
+					};
+
+					var own_on_error = function( res ) {
+
+						current += 1;
+
+						if ( 'function' == typeof req.on_error ) {
+							req.on_error( req, res, current );
+						}
+
+						results.push( res );
+
+						if ( current === target ) {
+							own_on_complete( res, target );
+						}
+
+					};
+
+					if ( Array.isArray( req.data ) ) {
+
+						var a = 0, alen = req.len, aitem;
+						target = alen;
+
+						for( a = 0; a < alen; a += 1 ) {
+							Private.database.relationship.read( { type: 'Thing', request: req, on_success: own_on_success, on_error: own_on_error } );
+						}
+
+					} else {
+			
+						Private.database.relationship.read( { type: 'Thing', request: req, on_success: own_on_success, on_error: own_on_error } );
+
+					}
+
+					return true;
+
+				} }
 
 			}
+
 		}
 	];
 
@@ -1876,29 +3405,30 @@ var Pulp = ( function() {
 		, attributes = ( ( is_req && 'undefined' !== typeof req.attributes ) ? req.attributes : null )
 		, nodes = ( ( is_req && 'undefined' !== typeof req.relationships ) ? req.nodes : null )
 		, x = 0, xlen = Private.schema.length, xitem
-		, type;
+		, type, name;
 		Private.node = Private.node || {};
 		for ( x = 0; x < xlen; x += 1 ) {
-			xitem = Private.schema[ x ];
+			xitem = Private.schema[ x ].schema;
+			name = Private.schema[ x ].singular;
 			for ( type in xitem ) {
 				if ( xitem.hasOwnProperty( type ) ) {
 					var attr;
-					for ( attr in xitem ) {
-						if ( xitem.hasOwnProperty( attr ) && 'function' === typeof xitem[ attr ] ) {
+					for ( attr in xitem[ type ] ) {
+						if ( xitem[ type ].hasOwnProperty( attr ) && 'function' === typeof xitem[ type ][ attr ] ) {
 
 							if ( 'undefined' === typeof Private[ type ] ) {
 								Private[ type ] = {};
 							}
 				
-							if ( 'undefined' === typeof Private[ type ][ xitem.singular ] ) {
-								Private[ type ][ xitem.singular ] = {};
+							if ( 'undefined' === typeof Private[ type ][ name ] ) {
+								Private[ type ][ name ] = {};
 							}
-							Private[ type ][ xitem.singular ][ attr ] = xitem[ attr ];
+							Private[ type ][ name ][ attr ] = xitem[ type ][ attr ];
 
 							if ( 'undefined' === typeof Private[ type ][ attr ] ) {
 								Private[ type ][ attr ] = {};
 							}	
-							Private[ type ][ attr ][ xitem.singular ] = xitem[ attr ];
+							Private[ type ][ attr ][ name ] = xitem[ type ][ attr ];
 
 						}
 					}
@@ -1911,6 +3441,7 @@ var Pulp = ( function() {
 		console.log( 'Public.prototype.create', req );
 		var datatype = req.datatype;
 		delete req.datatype;
+		console.log( Private );
 		if ( 'node' === datatype ) {
 			Private.node[ req.type ].create( req );
 		} else if ( 'relationship' === datatype ) {
