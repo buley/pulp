@@ -1905,7 +1905,7 @@ var Pulp = ( function() {
 		if ( 'node' === datatype ) {
 			Private.node[ req.type ].create( req );
 		} else if ( 'relationship' === datatype ) {
-			Private.relationship.create( req );
+			Private.relationship[ req.type ].create( req );
 		}
 	};
 
@@ -1916,7 +1916,7 @@ var Pulp = ( function() {
 		if ( 'node' === datatype ) {
 			Private.node[ req.type ].read( req );
 		} else if ( 'relationship' === datatype ) {
-			Private.relationship.read( req );
+			Private.relationship[ req.type ].read( req );
 		}
 	};
 
@@ -1927,7 +1927,7 @@ var Pulp = ( function() {
 		if ( 'node' === datatype ) {
 			Private.node.update( req );
 		} else if ( 'relationship' === datatype ) {
-			Private.relationship.update( req );
+			Private.relationship[ req.type ].update( req );
 		}
 	};
 
@@ -1938,7 +1938,7 @@ var Pulp = ( function() {
 		if ( 'node' === datatype ) {
 			Private.node.destroy( req );
 		} else if ( 'relationship' === datatype ) {
-			Private.relationship.destroy( req );
+			Private.relationship[ req.type ].destroy( req );
 		}
 	};
 
@@ -1952,14 +1952,14 @@ var pulp = new Pulp();
 
 var on_success = function(req,res) {
 	console.log('success res',res);
-	//pulp.create( { datatype: 'relationship', type: 'Person', to: 3, from: 4, data: { foo: 'bar' }, name: 'SHUTOUT', on_success: on_success, on_error: on_error } );
+	pulp.create( { datatype: 'relationship', type: 'Person', to: 10, from: 20, data: { foo: 'bar' }, name: 'MENTION', on_success: on_success, on_error: on_error } );
 };
 
 var on_error = function(req,res) {
 	console.log('error res',res);
 };
 
-for ( var x = 0; x < 10; x += 1 ) {
-	pulp.create( { datatype: 'node', type: 'Person', data: { foo: 'baz' + Math.floor( Math.random() * 10000 ), current: x }, on_success: on_success, on_error: on_error } );
+for ( var x = 0; x < 1; x += 1 ) {
+	pulp.create( { datatype: 'node', type: 'Person', data: { random: Math.floor( Math.random() * 10000 ), current: x }, on_success: on_success, on_error: on_error } );
 }
 
