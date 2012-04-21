@@ -2,7 +2,6 @@
 
 var neo4j = require( 'neo4j' );
 
-
 var Pulp = ( function() {
 
 	/* Neo4J Database */
@@ -22,10 +21,11 @@ var Pulp = ( function() {
 
 		var data = req.data;
 		var generic_callback = function( err, result ) {
+			console.log( 'Private.database.node.create > generic_callback', err, result );
 			if( 'undefined' !== typeof err && null !== err ) {
-				own_on_success( result );
-			} else {
 				own_on_error( err );
+			} else {
+				own_on_success( result );
 			}
 		};
 		var own_on_success = function( res ) {
@@ -93,9 +93,9 @@ var Pulp = ( function() {
 		var data = req.data;
 		var generic_callback = function( err, result ) {
 			if( 'undefined' !== typeof err && null !== err ) {
-				own_on_success( result );
-			} else {
 				own_on_error( err );
+			} else {
+				own_on_success( result );
 			}
 		};
 		var own_on_success = function( res ) {
@@ -127,9 +127,9 @@ var Pulp = ( function() {
 
 		var generic_callback = function( err, result ) {
 			if( 'undefined' !== typeof err && null !== err ) {
-				own_on_success( result );
-			} else {
 				own_on_error( err );
+			} else {
+				own_on_success( result );
 			}
 		};
 		var own_on_success = function( res ) {
@@ -161,9 +161,9 @@ var Pulp = ( function() {
 		var data = req.data;
 		var generic_callback = function( err, result ) {
 			if( 'undefined' !== typeof err && null !== err ) {
-				own_on_success( result );
-			} else {
 				own_on_error( err );
+			} else {
+				own_on_success( result );
 			}
 		};
 		var own_on_success = function( res ) {
@@ -1959,7 +1959,7 @@ var on_error = function(req,res) {
 	console.log('error res',res);
 };
 
-for ( var x = 0; x < 1; x += 1 ) {
-	pulp.create( { datatype: 'node', type: 'Person', data: { foo: 'bar', current: x }, on_success: on_success, on_error: on_error } );
+for ( var x = 0; x < 10; x += 1 ) {
+	pulp.create( { datatype: 'node', type: 'Person', data: { foo: 'baz' + Math.floor( Math.random() * 10000 ), current: x }, on_success: on_success, on_error: on_error } );
 }
 
