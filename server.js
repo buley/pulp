@@ -19,25 +19,132 @@ var Pulp = ( function() {
 
 	Private.database.node.create = function( req ) {
 		console.log( 'Private.database.node.create', req );
+
+		var data = req.data;
+		var generic_callback = function( err, result ) {
+			if( 'undefined' !== typeof err && null !== err ) {
+				own_on_success( result );
+			} else {
+				own_on_error( err );
+			}
+		};
+		var own_on_success = function( res ) {
+			if ( 'function' == typeof req.on_success ) {
+				req.on_success( req, res );
+			}
+		};
+		var own_on_error = function( res ) {
+			if ( 'function' == typeof req.on_error ) {
+				req.on_error( req, res );
+			}
+		};
+
+		var node = Private.db.createNode( data );
+		node.save( generic_callback );
+
 	};
 
 	Private.database.node.destroy = function( req ) {
 		console.log( 'Private.database.node.destroy', req );
+		var own_on_success = function( res ) {
+			if ( 'function' == typeof req.on_success ) {
+				req.on_success( req, res );
+			}
+		};
+		var own_on_complete = function( res ) {
+			if ( 'function' == typeof req.on_complete ) {
+				req.on_complete( req, res );
+			}
+		};
+		var own_on_error = function( res ) {
+			if ( 'function' == typeof req.on_error ) {
+				req.on_error( req, res );
+			}
+		};
+
+		var node = Private.db.createNode( data );
+		node.save( generic_callback );
+
 	};
 
 	Private.database.node.update = function( req ) {
 		console.log( 'Private.database.node.update', req );
+		var own_on_success = function( res ) {
+			if ( 'function' == typeof req.on_success ) {
+				req.on_success( req, res );
+			}
+		};
+		var own_on_complete = function( res ) {
+			if ( 'function' == typeof req.on_complete ) {
+				req.on_complete( req, res );
+			}
+		};
+		var own_on_error = function( res ) {
+			if ( 'function' == typeof req.on_error ) {
+				req.on_error( req, res );
+			}
+		};
+		on_success( {} );
 	};
 
 	Private.database.node.read = function( req ) {
 		console.log( 'Private.database.node.read', req );
+
+		var data = req.data;
+		var generic_callback = function( err, result ) {
+			if( 'undefined' !== typeof err && null !== err ) {
+				own_on_success( result );
+			} else {
+				own_on_error( err );
+			}
+		};
+		var own_on_success = function( res ) {
+			if ( 'function' == typeof req.on_success ) {
+				req.on_success( req, res );
+			}
+		};
+		var own_on_error = function( res ) {
+			if ( 'function' == typeof req.on_error ) {
+				req.on_error( req, res );
+			}
+		};
+
+		Private.db.getNodeById( id, generic_callback );
+
 	};
 
 
 	Private.database.relationship = {};
 
 	Private.database.relationship.create = function( req ) {
+
 		console.log( 'Private.database.relationship.create', req );
+
+		var from = req.from;
+		var to = req.to;
+		var name = req.name;
+		var data = req.data;
+
+		var generic_callback = function( err, result ) {
+			if( 'undefined' !== typeof err && null !== err ) {
+				own_on_success( result );
+			} else {
+				own_on_error( err );
+			}
+		};
+		var own_on_success = function( res ) {
+			if ( 'function' == typeof req.on_success ) {
+				req.on_success( req, res );
+			}
+		};
+		var own_on_error = function( res ) {
+			if ( 'function' == typeof req.on_error ) {
+				req.on_error( req, res );
+			}
+		};
+
+		Private.db.createRelationship( from, to, name, data );
+
 	};
 
 	Private.database.relationship.destroy = function( req ) {
@@ -50,8 +157,29 @@ var Pulp = ( function() {
 
 	Private.database.relationship.read = function( req ) {
 		console.log( 'Private.database.relationship.read', req );
-	};
 
+		var data = req.data;
+		var generic_callback = function( err, result ) {
+			if( 'undefined' !== typeof err && null !== err ) {
+				own_on_success( result );
+			} else {
+				own_on_error( err );
+			}
+		};
+		var own_on_success = function( res ) {
+			if ( 'function' == typeof req.on_success ) {
+				req.on_success( req, res );
+			}
+		};
+		var own_on_error = function( res ) {
+			if ( 'function' == typeof req.on_error ) {
+				req.on_error( req, res );
+			}
+		};
+
+		Private.db.getRelationshipById( id, generic_callback );
+
+	};
 
 	Private.actions = [ 'create', 'read', 'update', 'destroy', 'validate' ];
 
@@ -167,12 +295,11 @@ var Pulp = ( function() {
 					target = alen;
 
 					for( a = 0; a < alen; a += 1 ) {
-						Private.database.node.create( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+						Private.database.node.create( { type: 'Person', request: req, on_success: own_on_success, on_error: own_on_error } );
 					}
 
 				} else {
-
-					Private.database.node.create( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					Private.database.node.create( { type: 'Person', request: req, on_success: own_on_success, on_error: own_on_error } );
 
 				}
 			
@@ -238,12 +365,12 @@ var Pulp = ( function() {
 					target = alen;
 
 					for( a = 0; a < alen; a += 1 ) {
-						Private.database.node.destroy( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+						Private.database.node.destroy( { type: 'Person', request: req, on_success: own_on_success, on_error: own_on_error } );
 					}
 
 				} else {
 
-					Private.database.node.destroy( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					Private.database.node.destroy( { type: 'Person', request: req, on_success: own_on_success, on_error: own_on_error } );
 
 				}
 
@@ -308,12 +435,12 @@ var Pulp = ( function() {
 					target = alen;
 
 					for( a = 0; a < alen; a += 1 ) {
-						Private.database.node.update( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+						Private.database.node.update( { type: 'Person', request: req, on_success: own_on_success, on_error: own_on_error } );
 					}
 
 				} else {
 
-					Private.database.node.update( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					Private.database.node.update( { type: 'Person', request: req, on_success: own_on_success, on_error: own_on_error } );
 
 				}
 		
@@ -378,12 +505,12 @@ var Pulp = ( function() {
 					target = alen;
 
 					for( a = 0; a < alen; a += 1 ) {
-						Private.database.node.read( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+						Private.database.node.read( { type: 'Person', request: req, on_success: own_on_success, on_error: own_on_error } );
 					}
 
 				} else {
 		
-					Private.database.node.read( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					Private.database.node.read( { type: 'Person', request: req, on_success: own_on_success, on_error: own_on_error } );
 
 				}
 
@@ -500,12 +627,12 @@ var Pulp = ( function() {
 					target = alen;
 
 					for( a = 0; a < alen; a += 1 ) {
-						Private.database.node.create( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+						Private.database.node.create( { type: 'Organization', request: req, on_success: own_on_success, on_error: own_on_error } );
 					}
 
 				} else {
 
-					Private.database.node.create( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					Private.database.node.create( { type: 'Organization', request: req, on_success: own_on_success, on_error: own_on_error } );
 
 				}
 			
@@ -571,12 +698,12 @@ var Pulp = ( function() {
 					target = alen;
 
 					for( a = 0; a < alen; a += 1 ) {
-						Private.database.node.destroy( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+						Private.database.node.destroy( { type: 'Organization', request: req, on_success: own_on_success, on_error: own_on_error } );
 					}
 
 				} else {
 
-					Private.database.node.destroy( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					Private.database.node.destroy( { type: 'Organization', request: req, on_success: own_on_success, on_error: own_on_error } );
 
 				}
 
@@ -641,12 +768,12 @@ var Pulp = ( function() {
 					target = alen;
 
 					for( a = 0; a < alen; a += 1 ) {
-						Private.database.node.update( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+						Private.database.node.update( { type: 'Organization', request: req, on_success: own_on_success, on_error: own_on_error } );
 					}
 
 				} else {
 
-					Private.database.node.update( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					Private.database.node.update( { type: 'Organization', request: req, on_success: own_on_success, on_error: own_on_error } );
 
 				}
 		
@@ -711,12 +838,12 @@ var Pulp = ( function() {
 					target = alen;
 
 					for( a = 0; a < alen; a += 1 ) {
-						Private.database.node.read( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+						Private.database.node.read( { type: 'Organization', request: req, on_success: own_on_success, on_error: own_on_error } );
 					}
 
 				} else {
 		
-					Private.database.node.read( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					Private.database.node.read( { type: 'Organization', request: req, on_success: own_on_success, on_error: own_on_error } );
 
 				}
 
@@ -835,12 +962,12 @@ var Pulp = ( function() {
 					target = alen;
 
 					for( a = 0; a < alen; a += 1 ) {
-						Private.database.node.create( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+						Private.database.node.create( { type: 'Place', request: req, on_success: own_on_success, on_error: own_on_error } );
 					}
 
 				} else {
 
-					Private.database.node.create( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					Private.database.node.create( { type: 'Place', request: req, on_success: own_on_success, on_error: own_on_error } );
 
 				}
 			
@@ -905,12 +1032,12 @@ var Pulp = ( function() {
 					target = alen;
 
 					for( a = 0; a < alen; a += 1 ) {
-						Private.database.node.destroy( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+						Private.database.node.destroy( { type: 'Place', request: req, on_success: own_on_success, on_error: own_on_error } );
 					}
 
 				} else {
 
-					Private.database.node.destroy( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					Private.database.node.destroy( { type: 'Place', request: req, on_success: own_on_success, on_error: own_on_error } );
 
 				}
 
@@ -975,12 +1102,12 @@ var Pulp = ( function() {
 					target = alen;
 
 					for( a = 0; a < alen; a += 1 ) {
-						Private.database.node.update( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+						Private.database.node.update( { type: 'Place', request: req, on_success: own_on_success, on_error: own_on_error } );
 					}
 
 				} else {
 
-					Private.database.node.update( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					Private.database.node.update( { type: 'Place', request: req, on_success: own_on_success, on_error: own_on_error } );
 
 				}
 		
@@ -1045,12 +1172,12 @@ var Pulp = ( function() {
 					target = alen;
 
 					for( a = 0; a < alen; a += 1 ) {
-						Private.database.node.read( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+						Private.database.node.read( { type: 'Place', request: req, on_success: own_on_success, on_error: own_on_error } );
 					}
 
 				} else {
 		
-					Private.database.node.read( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					Private.database.node.read( { type: 'Place', request: req, on_success: own_on_success, on_error: own_on_error } );
 
 				}
 
@@ -1167,12 +1294,12 @@ var Pulp = ( function() {
 					target = alen;
 
 					for( a = 0; a < alen; a += 1 ) {
-						Private.database.node.create( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+						Private.database.node.create( { type: 'Idea', request: req, on_success: own_on_success, on_error: own_on_error } );
 					}
 
 				} else {
 
-					Private.database.node.create( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					Private.database.node.create( { type: 'Idea', request: req, on_success: own_on_success, on_error: own_on_error } );
 
 				}
 			
@@ -1237,12 +1364,12 @@ var Pulp = ( function() {
 					target = alen;
 
 					for( a = 0; a < alen; a += 1 ) {
-						Private.database.node.destroy( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+						Private.database.node.destroy( { type: 'Idea', request: req, on_success: own_on_success, on_error: own_on_error } );
 					}
 
 				} else {
 
-					Private.database.node.destroy( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					Private.database.node.destroy( { type: 'Idea', request: req, on_success: own_on_success, on_error: own_on_error } );
 
 				}
 
@@ -1307,12 +1434,12 @@ var Pulp = ( function() {
 					target = alen;
 
 					for( a = 0; a < alen; a += 1 ) {
-						Private.database.node.update( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+						Private.database.node.update( { type: 'Idea', request: req, on_success: own_on_success, on_error: own_on_error } );
 					}
 
 				} else {
 
-					Private.database.node.update( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					Private.database.node.update( { type: 'Idea', request: req, on_success: own_on_success, on_error: own_on_error } );
 
 				}
 		
@@ -1377,12 +1504,12 @@ var Pulp = ( function() {
 					target = alen;
 
 					for( a = 0; a < alen; a += 1 ) {
-						Private.database.node.read( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+						Private.database.node.read( { type: 'Idea', request: req, on_success: own_on_success, on_error: own_on_error } );
 					}
 
 				} else {
 		
-					Private.database.node.read( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					Private.database.node.read( { type: 'Idea', request: req, on_success: own_on_success, on_error: own_on_error } );
 
 				}
 
@@ -1505,12 +1632,12 @@ var Pulp = ( function() {
 					target = alen;
 
 					for( a = 0; a < alen; a += 1 ) {
-						Private.database.node.create( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+						Private.database.node.create( { type: 'Thing', request: req, on_success: own_on_success, on_error: own_on_error } );
 					}
 
 				} else {
 
-					Private.database.node.create( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					Private.database.node.create( { type: 'Thing', request: req, on_success: own_on_success, on_error: own_on_error } );
 
 				}
 			
@@ -1575,12 +1702,12 @@ var Pulp = ( function() {
 					target = alen;
 
 					for( a = 0; a < alen; a += 1 ) {
-						Private.database.node.destroy( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+						Private.database.node.destroy( { type: 'Thing', request: req, on_success: own_on_success, on_error: own_on_error } );
 					}
 
 				} else {
 
-					Private.database.node.destroy( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					Private.database.node.destroy( { type: 'Thing', request: req, on_success: own_on_success, on_error: own_on_error } );
 
 				}
 
@@ -1645,12 +1772,12 @@ var Pulp = ( function() {
 					target = alen;
 
 					for( a = 0; a < alen; a += 1 ) {
-						Private.database.node.update( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+						Private.database.node.update( { type: 'Thing', request: req, on_success: own_on_success, on_error: own_on_error } );
 					}
 
 				} else {
 
-					Private.database.node.update( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					Private.database.node.update( { type: 'Thing', request: req, on_success: own_on_success, on_error: own_on_error } );
 
 				}
 		
@@ -1714,12 +1841,12 @@ var Pulp = ( function() {
 					var a = 0, alen = req.len, aitem;
 					target = alen;
 					for( a = 0; a < alen; a += 1 ) {
-						Private.database.node.read( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+						Private.database.node.read( { type: 'Thing', request: req, on_success: own_on_success, on_error: own_on_error } );
 					}
 
 				} else {
 		
-					Private.database.node.read( { type: this.singular, request: req, on_success: own_on_success, on_error: own_on_error } );
+					Private.database.node.read( { type: 'Thing', request: req, on_success: own_on_success, on_error: own_on_error } );
 
 				}
 
@@ -1823,10 +1950,16 @@ var Pulp = ( function() {
 
 var pulp = new Pulp();
 
-var on_success = function(res) {
-console.log('success',res);
+var on_success = function(req,res) {
+	console.log('success res',res);
+	//pulp.create( { datatype: 'relationship', type: 'Person', to: 3, from: 4, data: { foo: 'bar' }, name: 'SHUTOUT', on_success: on_success, on_error: on_error } );
 };
-var on_error = function(res) {
-console.log('error',res);
+
+var on_error = function(req,res) {
+	console.log('error res',res);
 };
-pulp.create( { datatype: 'node', type: 'Person', data: { foo: 'bar' }, on_success: on_success, on_error: on_error } );
+
+for ( var x = 0; x < 1; x += 1 ) {
+	pulp.create( { datatype: 'node', type: 'Person', data: { foo: 'bar', current: x }, on_success: on_success, on_error: on_error } );
+}
+
