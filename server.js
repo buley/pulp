@@ -1875,26 +1875,35 @@ var Pulp = ( function() {
 		, relationships = ( ( is_req && 'undefined' !== typeof req.relationships ) ? req.relationships : null )
 		, attributes = ( ( is_req && 'undefined' !== typeof req.attributes ) ? req.attributes : null )
 		, nodes = ( ( is_req && 'undefined' !== typeof req.relationships ) ? req.nodes : null )
-		, x = 0, xlen = Private.schema.length, xitem;
+		, x = 0, xlen = Private.schema.length, xitem
+		, type;
 		Private.node = Private.node || {};
 		for ( x = 0; x < xlen; x += 1 ) {
 			xitem = Private.schema[ x ];
-			var attr;
-			for ( attr in xitem ) {
-				if ( xitem.hasOwnProperty( attr ) && 'function' === typeof xitem[ attr ] ) {
+			for ( type in xitem ) {
+				if ( xitem.hasOwnProperty( type ) ) {
+					var attr;
+					for ( attr in xitem ) {
+						if ( xitem.hasOwnProperty( attr ) && 'function' === typeof xitem[ attr ] ) {
 
-					if ( 'undefined' === typeof Private.node[ xitem.singular ] ) {
-						Private.node[ xitem.singular ] = {};
+							if ( 'undefined' === typeof Private[ type ] ) {
+								Private[ type ] = {};
+							}
+				
+							if ( 'undefined' === typeof Private[ type ][ xitem.singular ] ) {
+								Private[ type ][ xitem.singular ] = {};
+							}
+							Private[ type ][ xitem.singular ][ attr ] = xitem[ attr ];
+
+							if ( 'undefined' === typeof Private[ type ][ attr ] ) {
+								Private[ type ][ attr ] = {};
+							}	
+							Private[ type ][ attr ][ xitem.singular ] = xitem[ attr ];
+
+						}
 					}
-					Private.node[ xitem.singular ][ attr ] = xitem[ attr ];
-
-					if ( 'undefined' === typeof Private.node[ attr ] ) {
-						Private.node[ attr ] = {};
-					}	
-					Private.node[ attr ][ xitem.singular ] = xitem[ attr ];
-
 				}
-			}				
+			}
 		}
 	};
 
@@ -1925,7 +1934,7 @@ var Pulp = ( function() {
 		var datatype = req.datatype;
 		delete req.datatype;
 		if ( 'node' === datatype ) {
-			Private.node.update( req );
+			Private.node[ req.type ].update( req );
 		} else if ( 'relationship' === datatype ) {
 			Private.relationship[ req.type ].update( req );
 		}
@@ -1936,7 +1945,7 @@ var Pulp = ( function() {
 		var datatype = req.datatype;
 		delete req.datatype;
 		if ( 'node' === datatype ) {
-			Private.node.destroy( req );
+			Private.node[ req.type ].destroy( req );
 		} else if ( 'relationship' === datatype ) {
 			Private.relationship[ req.type ].destroy( req );
 		}
