@@ -11,8 +11,8 @@ var v2 = Math.floor( Math.random()* 10 );
 var state = {};
 state.seed = v1 + '-' + v2;
 
-var on_error = function( req, res ) {
-	console.log( 'ERROR', req, res );
+var on_error = function( err_req, err_res ) {
+	console.log( 'ERROR', err_req, err_res );
 };
 
 var create = function( callback, state ) {
@@ -73,20 +73,45 @@ var update = function( callback, state ) {
 
 var read = function( callback, state ) {
 
+	var read_on_error = function( err_req, err_res ) {
+		console.log( 'READ ERROR', err_req, err_res );
+	};
+
 	/* Get Node 1 By ID */
 	graphs.read( { datatype: 'node', id: state.node_1, on_success: function( req1, res1 ) {
-		console.log( "ON SUCCESS", res1 );	
+
 		/* Get Node 1 By Index */
-		//graphs.read( { datatype: 'index', index_type: 'node', index: 'NODE_IDX', key: 'seed', value: state.seed, on_success: function( req2, res2 ) {
+		graphs.read( { datatype: 'index', index_type: 'node', index: 'NODE_IDX', key: 'seed', value: state.node_1_data.seed, on_success: function( req2, res2 ) {
 
-			// Read done
-			if ( 'function' === typeof callback ) {
-				callback( state );
-			}
+			/* Get Node 2 By ID */
+			graphs.read( { datatype: 'node', id: state.node_2, on_success: function( req3, res3 ) {
 
-		//}, on_error: on_error } );
+				/* Get Node 2 By Index */
+				graphs.read( { datatype: 'index', index_type: 'node', index: 'NODE_IDX', key: 'seed', value: state.node_2_data.seed, on_success: function( req4, res4 ) {
 
-	}, on_error: on_error } );
+					/* Get Relationship By ID */
+					graphs.read( { datatype: 'relationship', id: state.relationship, on_success: function( req5, res5 ) {
+
+						/* Get Relationship By Index */
+						graphs.read( { datatype: 'index', index_type: 'relationship', index: 'RELATIONSHIP_IDX', key: 'seed', value: state.relationship_data.seed, on_success: function( req6, res6 ) {
+
+							// Read done
+							if ( 'function' === typeof callback ) {
+								callback( state );
+							}
+
+						}, on_error: read_on_error } );
+	
+					}, on_error: read_on_error } );
+
+
+				}, on_error: read_on_error } );
+
+			}, on_error: read_on_error } );
+
+		}, on_error: read_on_error } );
+
+	}, on_error: read_on_error } );
 
 };
 
