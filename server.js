@@ -74,18 +74,20 @@ var update = function( callback, state ) {
 var read = function( callback, state ) {
 
 	/* Get Node 1 By ID */
-	graphs.read( { datatype: 'node', id: state.node_1, index_type: 'node', index: 'NODE_IDX', on_success: function( req1, res1 ) {
-
+	graphs.read( { datatype: 'node', id: state.node_1, on_success: function( req1, res1 ) {
+		console.log( "ON SUCCESS", res1 );	
 		/* Get Node 1 By Index */
-		graphs.read( { datatype: 'index', index_type: 'node', index: 'NODE_IDX', key: 'seed', value: state.seed, on_success: function( req2, res2 ) {
+		//graphs.read( { datatype: 'index', index_type: 'node', index: 'NODE_IDX', key: 'seed', value: state.seed, on_success: function( req2, res2 ) {
 
 			// Read done
 			if ( 'function' === typeof callback ) {
 				callback( state );
 			}
 
-		} } );
-	} } );
+		//}, on_error: on_error } );
+
+	}, on_error: on_error } );
+
 };
 
 var destroy = function( callback, state ) {
