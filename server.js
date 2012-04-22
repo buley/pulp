@@ -503,8 +503,9 @@ var Pulp = ( function() {
 
 	};
 
+	Private.relationship = Private.relationship || {};
 
-	Private.relationship.createValidate = function( req ) {
+	Private.relationship.validate = function( req ) {
 		console.log( 'Private.entities validation', req );
 		var own_on_success = function( res ) {
 			if ( 'function' == typeof req.on_success ) {
@@ -524,7 +525,7 @@ var Pulp = ( function() {
 		return true;
 	};
 
-	Private.relationship.createCreate = function( req ) {
+	Private.relationship.create = function( req ) {
 
 		console.log( 'Private.entities.create', req );
 
@@ -594,7 +595,7 @@ var Pulp = ( function() {
 
 	};
 
-	Private.relationship.createDestroy = function( req ) {
+	Private.relationship.destroy = function( req ) {
 
 		console.log( 'Private.entities.destroy', req );
 
@@ -665,7 +666,7 @@ var Pulp = ( function() {
 
 	};
 
-	Private.relationship.createUpdate = function( req ) {
+	Private.relationship.update = function( req ) {
 
 		console.log( 'Private.entities.update', req );
 
@@ -1039,9 +1040,9 @@ var Pulp = ( function() {
 		delete req.datatype;
 		console.log( Private );
 		if ( 'node' === datatype ) {
-			Private.node[ req.type ].create( req );
+			Private.node.create( req );
 		} else if ( 'relationship' === datatype ) {
-			Private.relationship[ req.type ].create( req );
+			Private.relationship.create( req );
 		}
 	};
 
@@ -1050,9 +1051,9 @@ var Pulp = ( function() {
 		var datatype = req.datatype;
 		delete req.datatype;
 		if ( 'node' === datatype ) {
-			Private.node[ req.type ].read( req );
+			Private.node.read( req );
 		} else if ( 'relationship' === datatype ) {
-			Private.relationship[ req.type ].read( req );
+			Private.relationship.read( req );
 		}
 	};
 
@@ -1061,9 +1062,9 @@ var Pulp = ( function() {
 		var datatype = req.datatype;
 		delete req.datatype;
 		if ( 'node' === datatype ) {
-			Private.node[ req.type ].update( req );
+			Private.node.update( req );
 		} else if ( 'relationship' === datatype ) {
-			Private.relationship[ req.type ].update( req );
+			Private.relationship.update( req );
 		}
 	};
 
@@ -1072,9 +1073,9 @@ var Pulp = ( function() {
 		var datatype = req.datatype;
 		delete req.datatype;
 		if ( 'node' === datatype ) {
-			Private.node[ req.type ].destroy( req );
+			Private.node.destroy( req );
 		} else if ( 'relationship' === datatype ) {
-			Private.relationship[ req.type ].destroy( req );
+			Private.relationship.destroy( req );
 		}
 	};
 
