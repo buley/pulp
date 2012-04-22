@@ -84,8 +84,8 @@ var read = function( callback, state ) {
 				callback( state );
 			}
 
-		} );
-	} );
+		} } );
+	} } );
 };
 
 var destroy = function( callback, state ) {
