@@ -7,7 +7,7 @@ var id = Math.floor( Math.random()* 100 );
 
 var on_success = function(req,res) {
 	console.log('success res',req,res);
-	graphs.read( { datatype: 'index', index: 'something_new', key: 'random', value: 25, on_success: on_success, on_error: on_error, on_complete: on_complete } );
+	graphs.read( { datatype: 'index', index: 'something_new', key: 'random', value: 25, on_success: function(req,res){console.log("REQUEST",req,res);}, on_error: on_error, on_complete: on_complete } );
 };
 var on_complete = function( req,res ) {
 	console.log('complete res',res);
