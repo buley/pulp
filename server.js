@@ -1,4 +1,4 @@
-var graphs = require( 'graphs' );
+var graphs = require( 'node_modules/graphs/lib' );
 console.log('graphs',typeof graphs.connect);
 graphs.connect( 'http://localhost:7474' );
 var on_success = function(req,res) {
