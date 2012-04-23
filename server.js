@@ -67,11 +67,53 @@ var create = function( state, callback ) {
 
 
 var update = function( state, callback ) {
-	// Update done
-	if ( 'function' === typeof callback ) {
-		console.log( 'FINISHED UPDATE' );
-		callback( state );
-	}
+
+	var update_on_error = function( err_req, err_res ) {
+		console.log( 'Read error', err_req, err_res );
+	};
+
+	/* Get Node 1 By ID */
+	graphs.update( { datatype: 'node', id: state.node_1, on_success: function( req1, res1 ) {
+
+		/* Get Node 1 By Index */
+		graphs.update( { datatype: 'index', index_type: 'node', index: 'NODE_IDX', key: 'seed', value: state.node_1_data.seed, on_success: function( req2, res2 ) {
+			
+		}, on_complete: function( req2, res2 ) { 
+			
+			/* Get Node 2 By ID */
+			graphs.update( { datatype: 'node', id: state.node_2, on_success: function( req3, res3 ) {
+
+				/* Get Node 2 By Index */
+				graphs.update( { datatype: 'index', index_type: 'node', index: 'NODE_IDX', key: 'seed', value: state.node_2_data.seed, on_success: function( req4, res4 ) {
+
+				}, on_complete: function( req4, res4 ) { 
+
+					/* Get Relationship By ID */
+					graphs.update( { datatype: 'relationship', id: state.relationship, on_success: function( req5, res5 ) {
+
+						/* Get Relationship By Index */
+						graphs.update( { datatype: 'index', index_type: 'relationship', index: 'RELATIONSHIP_IDX', key: 'seed', value: state.relationship_data.seed, on_success: function( req6, res6 ) {
+
+						}, on_complete: function( req6, res6 ) {
+
+							// Update done
+							if ( 'function' === typeof callback ) {
+								console.log( 'FINISHED UPDATE' );
+								callback( state );
+							}
+
+						}, on_error: update_on_error } );
+	
+					}, on_error: update_on_error } );
+
+				}, on_error: update_on_error } );
+
+			}, on_error: update_on_error } );
+
+		}, on_error: update_on_error } );
+
+	}, on_error: update_on_error } );
+
 };
 
 var read = function( state, callback ) {
