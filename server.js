@@ -14,7 +14,7 @@ var on_error = function( err_req, err_res ) {
 	console.log( 'ERROR', err_req, err_res );
 };
 
-var create = function( callback, state ) {
+var create = function( state, callback ) {
 
 	/* Create Node 1 */
 	graphs.create( { datatype: 'node', data: { seed: v1 }, on_success: function( req1, res1 ) {
@@ -47,6 +47,7 @@ var create = function( callback, state ) {
 
 							// Create done
 							if ( 'function' === typeof callback ) {
+								console.log( 'FINISHED CREATE' );
 								callback( state );
 							}
 
@@ -65,14 +66,15 @@ var create = function( callback, state ) {
 };
 
 
-var update = function( callback, state ) {
+var update = function( state, callback ) {
 	// Update done
 	if ( 'function' === typeof callback ) {
+		console.log( 'FINISHED UPDATE' );
 		callback( state );
 	}
 };
 
-var read = function( callback, state ) {
+var read = function( state, callback ) {
 
 	var read_on_error = function( err_req, err_res ) {
 		console.log( 'Read error', err_req, err_res );
@@ -96,6 +98,8 @@ var read = function( callback, state ) {
 				console.log( 'Node 1 index data test passed' );
 			}
 
+		}, on_complete: function( req2, res2 ) { 
+			
 			/* Get Node 2 By ID */
 			graphs.read( { datatype: 'node', id: state.node_2, on_success: function( req3, res3 ) {
 
@@ -113,6 +117,8 @@ var read = function( callback, state ) {
 					} else {
 						console.log( 'Node 2 index data test passed' );
 					}
+
+				}, on_complete: function( req4, res4 ) { 
 
 					/* Get Relationship By ID */
 					graphs.read( { datatype: 'relationship', id: state.relationship, on_success: function( req5, res5 ) {
@@ -132,8 +138,11 @@ var read = function( callback, state ) {
 								console.log( 'Relationship index data test passed' );
 							}
 
+						}, on_complete: function( req6, res6 ) {
+
 							// Read done
 							if ( 'function' === typeof callback ) {
+								console.log( 'FINISHED READ' );
 								callback( state );
 							}
 
@@ -151,25 +160,46 @@ var read = function( callback, state ) {
 
 };
 
-var destroy = function( callback, state ) {
-	// Destroy done
-	if ( 'function' === typeof callback ) {
-		callback( state );
-	}
+var destroy = function( state, callback ) {
+
+	var destroy_on_error = function( err_req, err_res ) {
+		console.log( 'Destroy test error', err_req, err_res );
+	};
+
+	/* Remove Relationship By ID */
+	graphs.destroy( { datatype: 'relationship', id: state.relationship, on_success: function( req1, res1 ) {
+		
+		/* Remove Node 1 By ID */
+		graphs.destroy( { datatype: 'node', id: state.node_1, on_success: function( req1, res1 ) {
+
+			/* Remove Node 2 By ID */
+			graphs.destroy( { datatype: 'node', id: state.node_2, on_success: function( req1, res1 ) {
+		
+				// Destroy done
+				if ( 'function' === typeof callback ) {
+					console.log( 'FINISHED DESTROY' );
+					callback( state );
+				}
+
+			}, on_error: destroy_on_error } );
+
+		}, on_error: destroy_on_error } );
+
+	}, on_error: destroy_on_error } );
 };
 
 /* Test */
 
-var test = function( state) {
-	create( function() {
-		update( function() {
-			read( function() {
-				destroy( function() {
+var test = function( state ) {
+	create( state, function( state ) {
+		update( state, function( state ) {
+			read( state, function( state ) {
+				destroy( state, function( state ) {
 					console.log( "TESTS PASSED", state );
-				}, state );
-			}, state );
-		}, state );
-	}, state );
+				} );
+			} );
+		} );
+	} );
 }( state );
 
 
