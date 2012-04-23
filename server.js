@@ -2,7 +2,7 @@
 /* Graphs */
 
 var graphs = require( './node_modules/graphs/lib/graphs.js' );
-graphs.debug();
+//graphs.debug();
 graphs.connect( 'http://localhost:7474' );
 
 var v1 = Math.floor( Math.random()* 10 );
@@ -182,27 +182,27 @@ var read = function( state, callback ) {
 
 				}, on_complete: function( req4, res4 ) { 
 
-					/* Get Relationship By ID */
-					graphs.read( { datatype: 'relationship', id: state.relationship, on_success: function( req5, res5 ) {
+					/* Get Relationship By Index */
+					graphs.read( { datatype: 'index', index_type: 'relationship', index: 'RELATIONSHIP_IDX', key: 'seed', value: state.relationship_seed, on_success: function( req6, res6 ) {
 
-						if ( state.relationship_seed !== res5.data.seed ) {
-							console.log( 'Relationship data mismatch', state.relationship_seed, res5.data.seed );
-							throw new Error( 'Relationship data mismatch', state.relationship_seed, res5.data.seed );
+						if ( state.relationship_seed !== res6.data.seed ) {
+							console.log( 'Relationship index data mismatch', state.relationship_seed, res6.data.seed );
+							throw new Error( 'Relationship index data mismatch', state.relationship_seed, res6.data.seed );
 						} else {
-							console.log( 'Relationship data test passed' );
+							console.log( 'Relationship index data test passed' );
 						}
 
-						/* Get Relationship By Index */
-						graphs.read( { datatype: 'index', index_type: 'relationship', index: 'RELATIONSHIP_IDX', key: 'seed', value: state.relationship_seed, on_success: function( req6, res6 ) {
+					}, on_complete: function( req6, res6 ) {
 
-							if ( state.relationship_seed !== res6.data.seed ) {
-								console.log( 'Relationship index data mismatch', state.relationship_seed, res6.data.seed );
-								throw new Error( 'Relationship index data mismatch', state.relationship_seed, res6.data.seed );
+						/* Get Relationship By ID */
+						graphs.read( { datatype: 'relationship', id: state.relationship, on_success: function( req5, res5 ) {
+
+							if ( state.relationship_seed !== res5.data.seed ) {
+								console.log( 'Relationship data mismatch', state.relationship_seed, res5.data.seed );
+								throw new Error( 'Relationship data mismatch', state.relationship_seed, res5.data.seed );
 							} else {
-								console.log( 'Relationship index data test passed' );
+								console.log( 'Relationship data test passed' );
 							}
-
-						}, on_complete: function( req6, res6 ) {
 
 							// Read done
 							if ( 'function' === typeof callback ) {
@@ -258,9 +258,9 @@ var test = function( state ) {
 	create( state, function( state ) {
 		update( state, function( state ) {
 			read( state, function( state ) {
-				destroy( state, function( state ) {
+				//destroy( state, function( state ) {
 					console.log( "TESTS PASSED", state );
-				} );
+				//} );
 			} );
 		} );
 	} );
