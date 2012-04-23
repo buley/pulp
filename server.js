@@ -20,7 +20,6 @@ var create = function( state, callback ) {
 	graphs.create( { datatype: 'node', data: { seed: v1 }, on_success: function( req1, res1 ) {
 		
 		state.node_1 = res1.id;
-		state.node_1_data = res1.data;
 		state.node_1_seed = v1;
 
 		/* Index Property On Node 1 */
@@ -30,7 +29,6 @@ var create = function( state, callback ) {
 			graphs.create( { datatype: 'node', data: { seed: v2 }, on_success: function( req3, res3 ) {
 
 				state.node_2 = res3.id;
-				state.node_2_data = res3.data;
 				state.node_2_seed = v2;
 				
 				/* Index Property On Node 2 */
@@ -40,7 +38,6 @@ var create = function( state, callback ) {
 					graphs.create( { datatype: 'relationship', to: res3.id, from: res1.id, data: { seed: state.relationship_seed }, name: 'HELLO_WORLD', on_success: function( req5, res5 ) {
 
 						state.relationship = res5.id;
-						state.relationship_data = res5.data;
 ;
 						/* Index Property On Relationship */
 						graphs.create( { datatype: 'index', id: res5.id, index_type: 'relationship', index: 'RELATIONSHIP_IDX', data: { seed: state.relationship_seed }, on_success: function( req6, res6 ) {
@@ -69,32 +66,51 @@ var create = function( state, callback ) {
 var update = function( state, callback ) {
 
 	var update_on_error = function( err_req, err_res ) {
-		console.log( 'Read error', err_req, err_res );
+		console.log( 'Update error', err_req, err_res );
 	};
+	var v3 = Math.floor( Math.random() * 100 );
+	var v4 = Math.floor( Math.random() * 100 );
+	var v5 = Math.floor( Math.random() * 100 );
+	var v6 = Math.floor( Math.random() * 100 );
+	var v7 = v3 + '-' + v5;
+	var v8 = v4 + '-' + v6;
+	/* Update Node 1 By Index */
+	graphs.update( { datatype: 'index', index_type: 'node', data: { seed: v3 }, index: 'NODE_IDX', key: 'seed', value: state.node_1_seed, on_success: function( req2, res2 ) {
+		
+	}, on_complete: function( req2, res2 ) { 
 
-	/* Get Node 1 By ID */
-	graphs.update( { datatype: 'node', id: state.node_1, on_success: function( req1, res1 ) {
+		state.node_1_seed = v3;
 
-		/* Get Node 1 By Index */
-		graphs.update( { datatype: 'index', index_type: 'node', index: 'NODE_IDX', key: 'seed', value: state.node_1_data.seed, on_success: function( req2, res2 ) {
-			
-		}, on_complete: function( req2, res2 ) { 
-			
-			/* Get Node 2 By ID */
-			graphs.update( { datatype: 'node', id: state.node_2, on_success: function( req3, res3 ) {
+		/* Update Node 1 By ID */
+		graphs.update( { datatype: 'node', id: state.node_1, data: { seed: v4 }, on_success: function( req1, res1 ) {
 
-				/* Get Node 2 By Index */
-				graphs.update( { datatype: 'index', index_type: 'node', index: 'NODE_IDX', key: 'seed', value: state.node_2_data.seed, on_success: function( req4, res4 ) {
+			state.node_1_seed = v4;
 
-				}, on_complete: function( req4, res4 ) { 
+			/* Update Node 2 By Index */
+			graphs.update( { datatype: 'index', index_type: 'node', data: { seed: v5 }, index: 'NODE_IDX', key: 'seed', value: state.node_2_seed, on_success: function( req4, res4 ) {
 
-					/* Get Relationship By ID */
-					graphs.update( { datatype: 'relationship', id: state.relationship, on_success: function( req5, res5 ) {
+			}, on_complete: function( req4, res4 ) { 
+		
+				state.node_2_seed = v5;
+				
+				/* Update Node 2 By ID */
 
-						/* Get Relationship By Index */
-						graphs.update( { datatype: 'index', index_type: 'relationship', index: 'RELATIONSHIP_IDX', key: 'seed', value: state.relationship_data.seed, on_success: function( req6, res6 ) {
+				graphs.update( { datatype: 'node', id: state.node_2, data: { seed: v6 }, on_success: function( req3, res3 ) {
+				
+					state.node_2_seed = v6;
 
-						}, on_complete: function( req6, res6 ) {
+					/* Update Relationship By Index */
+					graphs.update( { datatype: 'index', index_type: 'relationship', data: { seed: v7 }, index: 'RELATIONSHIP_IDX', key: 'seed', value: state.relationship_seed, on_success: function( req6, res6 ) {
+
+					}, on_complete: function( req6, res6 ) {
+
+						state.relationship_seed = v7;
+
+						/* Update Relationship By ID */
+						graphs.update( { datatype: 'relationship', id: state.relationship, data: { seed: v8 }, on_success: function( req5, res5 ) {
+
+							state.relationship_seed = v8;
+
 
 							// Update done
 							if ( 'function' === typeof callback ) {
@@ -126,16 +142,18 @@ var read = function( state, callback ) {
 	graphs.read( { datatype: 'node', id: state.node_1, on_success: function( req1, res1 ) {
 
 		if ( state.node_1_seed !== res1.data.seed ) {
-			throw new Error( 'Node 1 data mismatch', state.node_1_data.seed, res1.data.seed );
+			console.log(  'Node 1 data mismatch', state.node_1_seed, res1.data.seed );
+			throw new Error( 'Node 1 data mismatch', state.node_1_seed, res1.data.seed );
 		} else {
 			console.log( 'Node 1 data test passed' );
 		}
 
 		/* Get Node 1 By Index */
-		graphs.read( { datatype: 'index', index_type: 'node', index: 'NODE_IDX', key: 'seed', value: state.node_1_data.seed, on_success: function( req2, res2 ) {
+		graphs.read( { datatype: 'index', index_type: 'node', index: 'NODE_IDX', key: 'seed', value: state.node_1_seed, on_success: function( req2, res2 ) {
 			
 			if ( state.node_1_seed !== res2.data.seed ) {
-				throw new Error( 'Node 1 index data mismatch', state.node_1_data.seed, res1.data.seed );
+				console.log( 'Node 1 index data mismatch', state.node_1_seed, res2.data.seed );
+				throw new Error( 'Node 1 index data mismatch', state.node_1_seed, res2.data.seed );
 			} else {
 				console.log( 'Node 1 index data test passed' );
 			}
@@ -146,16 +164,18 @@ var read = function( state, callback ) {
 			graphs.read( { datatype: 'node', id: state.node_2, on_success: function( req3, res3 ) {
 
 				if ( state.node_2_seed !== res3.data.seed ) {
-					throw new Error( 'Node 2 data mismatch', state.node_2_data.seed, res3.data.seed );
+					console.log( 'Node 2 data mismatch', state.node_2_seed, res3.data.seed );
+					throw new Error( 'Node 2 data mismatch', state.node_2_seed, res3.data.seed );
 				} else {
 					console.log( 'Node 2 data test passed' );
 				}
 
 				/* Get Node 2 By Index */
-				graphs.read( { datatype: 'index', index_type: 'node', index: 'NODE_IDX', key: 'seed', value: state.node_2_data.seed, on_success: function( req4, res4 ) {
+				graphs.read( { datatype: 'index', index_type: 'node', index: 'NODE_IDX', key: 'seed', value: state.node_2_seed, on_success: function( req4, res4 ) {
 
-					if ( state.node_2_data.seed !== res4.data.seed ) {
-						throw new Error( 'Node 2 index data mismatch', state.node_2_data.seed, res3.data.seed );
+					if ( state.node_2_seed !== res4.data.seed ) {
+						console.log( 'Node 2 index data mismatch', state.node_2_seed, res4.data.seed );
+						throw new Error( 'Node 2 index data mismatch', state.node_2_seed, res4.data.seed );
 					} else {
 						console.log( 'Node 2 index data test passed' );
 					}
@@ -165,17 +185,19 @@ var read = function( state, callback ) {
 					/* Get Relationship By ID */
 					graphs.read( { datatype: 'relationship', id: state.relationship, on_success: function( req5, res5 ) {
 
-						if ( state.relationship_data.seed !== res5.data.seed ) {
-							throw new Error( 'Relationship data mismatch', state.relationship_data.seed, res5.data.seed );
+						if ( state.relationship_seed !== res5.data.seed ) {
+							console.log( 'Relationship data mismatch', state.relationship_seed, res5.data.seed );
+							throw new Error( 'Relationship data mismatch', state.relationship_seed, res5.data.seed );
 						} else {
 							console.log( 'Relationship data test passed' );
 						}
 
 						/* Get Relationship By Index */
-						graphs.read( { datatype: 'index', index_type: 'relationship', index: 'RELATIONSHIP_IDX', key: 'seed', value: state.relationship_data.seed, on_success: function( req6, res6 ) {
+						graphs.read( { datatype: 'index', index_type: 'relationship', index: 'RELATIONSHIP_IDX', key: 'seed', value: state.relationship_seed, on_success: function( req6, res6 ) {
 
-							if ( state.relationship_data.seed !== res6.data.seed ) {
-								throw new Error( 'Relationship index data mismatch', state.relationship_data.seed, res6.data.seed );
+							if ( state.relationship_seed !== res6.data.seed ) {
+								console.log( 'Relationship index data mismatch', state.relationship_seed, res6.data.seed );
+								throw new Error( 'Relationship index data mismatch', state.relationship_seed, res6.data.seed );
 							} else {
 								console.log( 'Relationship index data test passed' );
 							}
