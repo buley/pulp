@@ -100,17 +100,16 @@ var update = function( state, callback ) {
 					state.node_2_seed = v6;
 
 					/* Update Relationship By Index */
-					graphs.update( { datatype: 'index', index_type: 'relationship', data: { seed: v7 }, index: 'RELATIONSHIP_IDX', key: 'seed', value: state.relationship_seed, on_success: function( req6, res6 ) {
+					graphs.update( { datatype: 'index', index_type: 'relationship', data: { seed: v7 }, index: 'RELATIONSHIP_IDX', key: 'seed', value: state.relationship_seed, on_success: function( req5, res5 ) {
 
-					}, on_complete: function( req6, res6 ) {
+					}, on_complete: function( req5, res5 ) {
 
 						state.relationship_seed = v7;
 
 						/* Update Relationship By ID */
-						graphs.update( { datatype: 'relationship', id: state.relationship, data: { seed: v8 }, on_success: function( req5, res5 ) {
+						graphs.update( { datatype: 'relationship', id: state.relationship, data: { seed: v8 }, on_success: function( req6, res6 ) {
 
 							state.relationship_seed = v8;
-
 
 							// Update done
 							if ( 'function' === typeof callback ) {
