@@ -16,28 +16,41 @@ var on_error = function( err_req, err_res ) {
 
 var create = function( state, callback ) {
 
+	var finshed = function() {
+		console.log( 'Create > Finished' );
+	};
+	console.log( 'Create > Started' );
+	
 	/* Create Node 1 */
 	graphs.create( { datatype: 'node', data: { seed: v1 }, on_success: function( req1, res1 ) {
 		
+		console.log( 'Create > Create Node 1 > Passed' );
+
 		state.node_1 = res1.id;
 		state.node_1_seed = v1;
 
 		/* Index Property On Node 1 */
 		graphs.create( { datatype: 'index', id: res1.id, index_type: 'node', index: 'NODE_IDX', data: { seed: v1 }, on_success: function( req2, res2 ) {
 
+			console.log( 'Create > Index Property On Node 1 > Passed' );
+
 			/* Create Node 2 */
 			graphs.create( { datatype: 'node', data: { seed: v2 }, on_success: function( req3, res3 ) {
 
+				console.log( 'Create > Create Node 2 > Passed' );
 				state.node_2 = res3.id;
 				state.node_2_seed = v2;
 				
 				/* Index Property On Node 2 */
 				graphs.create( { datatype: 'index', id: res3.id, index_type: 'node', index: 'NODE_IDX', data: { seed: v2 }, on_success: function( req4, res4 ) {
 				
+					console.log( 'Create > Index Property On Node 2 > Passed' );
+
 					/* Create Relationship Between Node 1 and Node 2 */
 					graphs.create( { datatype: 'relationship', to: res3.id, from: res1.id, data: { seed: state.relationship_seed }, name: 'HELLO_WORLD', on_success: function( req5, res5 ) {
 
-						state.relationship = res5.id;
+						state.relationship = res5.id;	
+						console.log( 'Create > Create Relationship Between Node 1 and Node 2 > Passed' );
 ;
 						/* Index Property On Relationship */
 						graphs.create( { datatype: 'index', id: res5.id, index_type: 'relationship', index: 'RELATIONSHIP_IDX', data: { seed: state.relationship_seed }, on_success: function( req6, res6 ) {
@@ -45,20 +58,39 @@ var create = function( state, callback ) {
 							// Create done
 							if ( 'function' === typeof callback ) {
 								console.log( 'Create > Success > ' + JSON.stringify( state ) );
+								finished();
 								callback( state );
 							}
 
-						} , on_error: on_error } );
+						} , on_error: function() {
+							console.log( 'Create > Index Property On Relationship > Failed' );
+							finished();
+						} } );
 
-					} , on_error: on_error } );
+					} , on_error: function() { 
+						console.log( 'Create > Create Relationship Between Node 1 and Node 2 > Failed' );
+						finished();
+					} } );
 
-				} , on_error: on_error } );
+				} , on_error: function() { 
+					console.log( 'Create > Index Property On Node 2 > Failed' );
+					finished();
+				} } );
 
-			} , on_error: on_error } );
+			} , on_error: function() { 
+				console.log( 'Create > Create Node 2 > Failed' );
+				finished();
+			} } );
 
-		}, on_error: on_error } );
+		}, on_error: function() { 
+			console.log( 'Create > Index Property On Node 1 > Failed' );
+			finished();
+		} } );
 
-	}, on_error: on_error } );
+	}, on_error: function() { 
+		console.log( 'Create > Create Node 1 > Failed' );
+		finished();
+	} } );
 
 };
 
@@ -275,6 +307,7 @@ var read = function( state, callback, on_error ) {
 							// Read done
 							if ( 'function' === typeof callback ) {
 								console.log( 'Read > Success > ' + JSON.stringify( state )  );
+								finished();
 								callback( state );
 							}
 
@@ -343,6 +376,7 @@ var destroy = function( state, callback ) {
 				// Destroy done
 				if ( 'function' === typeof callback ) {
 					console.log( 'Destroy > Success > ' + JSON.stringify( state ) );
+					finished();
 					callback( state );
 				}
 
