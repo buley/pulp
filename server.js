@@ -2,7 +2,7 @@
 /* Graphs */
 
 var graphs = require( './node_modules/graphs/lib/graphs.js' );
-graphs.debug();
+//graphs.debug();
 graphs.connect( 'http://localhost:7474' );
 
 var v1 = Math.floor( Math.random()* 10 );
@@ -143,7 +143,7 @@ var update = function( state, callback ) {
 					state.node_2_seed = v6;
 
 					/* Update Relationship By Index */
-					graphs.update( { datatype: 'index', index_type: 'relationship', data: { seed: v7 }, reindex: true, index: 'RELATIONSHIP_IDX', key: 'seed', value: v7, on_success: function( req5, res5 ) {
+					graphs.update( { datatype: 'index', index_type: 'relationship', data: { seed: v7 }, reindex: true, index: 'RELATIONSHIP_IDX', key: 'seed', value: state.relationship_seed, on_success: function( req5, res5 ) {
 
 						console.log( 'Update > Update Relationship By Index > Passed' );
 						state.relationship_seed = v7;
@@ -158,7 +158,7 @@ var update = function( state, callback ) {
 
 							// Update done
 							if ( 'function' === typeof callback ) {
-								console.log( 'Read > Update > ' + JSON.stringify( state )  );
+								console.log( 'Update > ' + JSON.stringify( state )  );
 								finished();
 								callback( state );
 							}
@@ -402,11 +402,11 @@ var test = function( state ) {
 	create( state, function( state ) {
 		read( state, function( state ) {
 			update( state, function( state ) {
-				read( state, function( state ) {
+				//read( state, function( state ) {
 					//destroy( state, function( state ) {
 						console.log( "FINISHED", state );
 					//} );
-				} );
+				//} );
 			} );
 		} );
 	} );
