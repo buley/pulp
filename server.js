@@ -16,7 +16,7 @@ var on_error = function( err_req, err_res ) {
 
 var create = function( state, callback ) {
 
-	var finshed = function() {
+	var finished = function() {
 		console.log( 'Create > Finished' );
 	};
 	console.log( 'Create > Started' );
