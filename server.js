@@ -2,7 +2,7 @@
 /* Graphs */
 
 var graphs = require( './node_modules/graphs/lib/graphs.js' );
-//graphs.debug();
+graphs.debug();
 graphs.connect( 'http://localhost:7474' );
 
 var v1 = Math.floor( Math.random()* 10 );
@@ -44,7 +44,7 @@ var create = function( state, callback ) {
 
 							// Create done
 							if ( 'function' === typeof callback ) {
-								console.log( 'FINISHED CREATE' );
+								console.log( 'Create > Success > ' + JSON.stringify( state ) );
 								callback( state );
 							}
 
@@ -74,87 +74,135 @@ var update = function( state, callback ) {
 	var v6 = Math.floor( Math.random() * 100 );
 	var v7 = v3 + '-' + v5;
 	var v8 = v4 + '-' + v6;
-	/* Update Node 1 By Index */
-	graphs.update( { datatype: 'index', index_type: 'node', data: { seed: v3 }, index: 'NODE_IDX', key: 'seed', value: state.node_1_seed, on_success: function( req2, res2 ) {
-		
-	}, on_complete: function( req2, res2 ) { 
 
+	var finished = function() {
+		console.log( "Update > Finished" );
+	};
+	
+	console.log( "Update > Started" );
+
+	/* Update Node 1 By Index */
+	graphs.update( { datatype: 'index', index_type: 'node', data: { seed: v3 }, reindex: true, index: 'NODE_IDX', key: 'seed', value: state.node_1_seed, on_success: function( req2, res2 ) {
+
+		console.log( 'Update > Update Node 1 By Index > Passed' );
 		state.node_1_seed = v3;
+	
+	}, on_complete: function( req2, res2 ) { 
 
 		/* Update Node 1 By ID */
 		graphs.update( { datatype: 'node', id: state.node_1, data: { seed: v4 }, on_success: function( req1, res1 ) {
 
+			console.log( 'Update > Update Node 1 By ID > Passed' );
 			state.node_1_seed = v4;
 
 			/* Update Node 2 By Index */
-			graphs.update( { datatype: 'index', index_type: 'node', data: { seed: v5 }, index: 'NODE_IDX', key: 'seed', value: state.node_2_seed, on_success: function( req4, res4 ) {
+			graphs.update( { datatype: 'index', index_type: 'node', data: { seed: v5 }, reindex: true, index: 'NODE_IDX', key: 'seed', value: state.node_2_seed, on_success: function( req4, res4 ) {
 
-			}, on_complete: function( req4, res4 ) { 
-		
+				console.log( 'Update > Update Node 2 By Index > Passed' );
 				state.node_2_seed = v5;
 				
+			}, on_complete: function( req4, res4 ) { 
+
 				/* Update Node 2 By ID */
 
 				graphs.update( { datatype: 'node', id: state.node_2, data: { seed: v6 }, on_success: function( req3, res3 ) {
-				
+
+					console.log( 'Update > Update Node 2 By ID > Passed' );
 					state.node_2_seed = v6;
 
 					/* Update Relationship By Index */
-					graphs.update( { datatype: 'index', index_type: 'relationship', data: { seed: v7 }, index: 'RELATIONSHIP_IDX', key: 'seed', value: state.relationship_seed, on_success: function( req5, res5 ) {
+					graphs.update( { datatype: 'index', index_type: 'relationship', data: { seed: v7 }, reindex: true, index: 'RELATIONSHIP_IDX', key: 'seed', value: v7, on_success: function( req5, res5 ) {
+
+						console.log( 'Update > Update Relationship By Index > Passed' );
+						state.relationship_seed = v7;
 
 					}, on_complete: function( req5, res5 ) {
 
-						state.relationship_seed = v7;
-
 						/* Update Relationship By ID */
 						graphs.update( { datatype: 'relationship', id: state.relationship, data: { seed: v8 }, on_success: function( req6, res6 ) {
-
+			
+							console.log( 'Update > Update Relationship By ID > Passed' );
 							state.relationship_seed = v8;
 
 							// Update done
 							if ( 'function' === typeof callback ) {
-								console.log( 'FINISHED UPDATE' );
+								console.log( 'Read > Update > ' + JSON.stringify( state )  );
+								finished();
 								callback( state );
 							}
 
-						}, on_error: update_on_error } );
+						}, on_error: function( res ) {
+               				console.log( 'Update > Update Relationship By ID  > Failed' );
+  		          			finished();
+        		        } } );
 	
-					}, on_error: update_on_error } );
+					}, on_error: function( res ) {
+              		  console.log( 'Update > Update Relationship By Index  > Failed' );
+       	              finished();
+          			} } );
 
-				}, on_error: update_on_error } );
+				}, on_error: function( res ) {
+                    console.log( 'Update > Update Node 2 By ID > Failed' );
+                    finished();
+                } } );
 
-			}, on_error: update_on_error } );
+			}, on_error: function( res ) {
+                console.log( 'Update > Update Node 2 By Index > Failed' );
+                finished();
+            } } );
 
-		}, on_error: update_on_error } );
+		}, on_error: function( res ) {
+            console.log( 'Update > Update Node 1 By ID > Failed' );
+            finished();
+        } } );
 
-	}, on_error: update_on_error } );
+	}, on_error: function( res ) {
+         console.log( 'Update > Update Node 1 By Index  > Failed' );
+         finished();
+    } } );
 
 };
 
-var read = function( state, callback ) {
+var read = function( state, callback, on_error ) {
 
-	var read_on_error = function( err_req, err_res ) {
+	var on_error = function( err_req, err_res ) {
 		console.log( 'Read error', err_req, err_res );
 	};
+
+	var finished = function() {
+		console.log( 'Read > Finished' );
+	};
+
+	console.log( 'Read > Started' );
 
 	/* Get Node 1 By ID */
 	graphs.read( { datatype: 'node', id: state.node_1, on_success: function( req1, res1 ) {
 
 		if ( state.node_1_seed !== res1.data.seed ) {
-			console.log(  'Node 1 data mismatch', state.node_1_seed, res1.data.seed );
-			throw new Error( 'Node 1 data mismatch', state.node_1_seed, res1.data.seed );
+			console.log(  'Read > Get Node 1 By ID > Node 1 data mismatch', state.node_1_seed, res1.data.seed );
+			var err = new Error( 'Read > Get Node 1 By ID > Node 1 data mismatch', state.node_1_seed, res1.data.seed );
+			if ( 'function' === typeof on_error ) {
+				on_error( err );
+			} else {
+				throw err;
+			}
 		} else {
-			console.log( 'Node 1 data test passed' );
+			console.log( 'Read > Get Node 1 By ID > Passed' );
 		}
 
 		/* Get Node 1 By Index */
 		graphs.read( { datatype: 'index', index_type: 'node', index: 'NODE_IDX', key: 'seed', value: state.node_1_seed, on_success: function( req2, res2 ) {
 			
 			if ( state.node_1_seed !== res2.data.seed ) {
-				console.log( 'Node 1 index data mismatch', state.node_1_seed, res2.data.seed );
-				throw new Error( 'Node 1 index data mismatch', state.node_1_seed, res2.data.seed );
+				console.log( 'Read > Get Node 1 By Index > Failed' );
+				var err = new Error( 'Node 1 index data mismatch', state.node_1_seed, res2.data.seed );
+				if ( 'function' === typeof on_error ) {
+					on_error( err );
+				} else {
+					throw err;
+				}
 			} else {
-				console.log( 'Node 1 index data test passed' );
+				console.log( 'Read > Get Node 1 By Index > Passed' );
 			}
 
 		}, on_complete: function( req2, res2 ) { 
@@ -163,63 +211,102 @@ var read = function( state, callback ) {
 			graphs.read( { datatype: 'node', id: state.node_2, on_success: function( req3, res3 ) {
 
 				if ( state.node_2_seed !== res3.data.seed ) {
-					console.log( 'Node 2 data mismatch', state.node_2_seed, res3.data.seed );
-					throw new Error( 'Node 2 data mismatch', state.node_2_seed, res3.data.seed );
+					console.log( 'Read > Get Node 2 By ID > Failed' );
+					var err = new Error( 'Node 2 data mismatch', state.node_2_seed, res3.data.seed );
+					if ( 'function' === typeof on_error ) {
+						on_error( err );
+					} else {
+						throw err;
+					}
 				} else {
-					console.log( 'Node 2 data test passed' );
+					console.log( 'Read > Get Node 2 By ID > Passed' );
 				}
 
 				/* Get Node 2 By Index */
 				graphs.read( { datatype: 'index', index_type: 'node', index: 'NODE_IDX', key: 'seed', value: state.node_2_seed, on_success: function( req4, res4 ) {
 
 					if ( state.node_2_seed !== res4.data.seed ) {
-						console.log( 'Node 2 index data mismatch', state.node_2_seed, res4.data.seed );
-						throw new Error( 'Node 2 index data mismatch', state.node_2_seed, res4.data.seed );
+						console.log( 'Read > Get Node 2 By Index > Failed' );
+						var err = new Error( 'Node 2 index data mismatch', state.node_2_seed, res4.data.seed );
+						if ( 'function' === typeof on_error ) {
+							on_error( err );
+						} else {
+							throw err;
+						}
 					} else {
-						console.log( 'Node 2 index data test passed' );
+						console.log( 'Read > Get Node 2 By Index > Passed' );
 					}
 
 				}, on_complete: function( req4, res4 ) { 
 
-					/* Get Relationship By Index */
-					graphs.read( { datatype: 'index', index_type: 'relationship', index: 'RELATIONSHIP_IDX', key: 'seed', value: state.relationship_seed, on_success: function( req6, res6 ) {
 
-						if ( state.relationship_seed !== res6.data.seed ) {
-							console.log( 'Relationship index data mismatch', state.relationship_seed, res6.data.seed );
-							throw new Error( 'Relationship index data mismatch', state.relationship_seed, res6.data.seed );
+					/* Get Relationship By ID */
+					graphs.read( { datatype: 'relationship', id: state.relationship, on_success: function( req5, res5 ) {
+
+						if ( state.relationship_seed !== res5.data.seed ) {
+							console.log( 'Read > Get Relationship By ID > Failed' );
+							var err = new Error( 'Relationship data mismatch', state.relationship_seed, res5.data.seed );
+							if ( 'function' === typeof on_error ) {
+								on_error( err );
+							} else {
+								throw err;
+							}
 						} else {
-							console.log( 'Relationship index data test passed' );
+							console.log( 'Read > Get Relationship By ID > Passed' );
 						}
 
-					}, on_complete: function( req6, res6 ) {
+						/* Get Relationship By Index */
+						graphs.read( { datatype: 'index', index_type: 'relationship', index: 'RELATIONSHIP_IDX', key: 'seed', value: state.relationship_seed, on_success: function( req6, res6 ) {
 
-						/* Get Relationship By ID */
-						graphs.read( { datatype: 'relationship', id: state.relationship, on_success: function( req5, res5 ) {
-
-							if ( state.relationship_seed !== res5.data.seed ) {
-								console.log( 'Relationship data mismatch', state.relationship_seed, res5.data.seed );
-								throw new Error( 'Relationship data mismatch', state.relationship_seed, res5.data.seed );
+							if ( state.relationship_seed !== res6.data.seed ) {
+								console.log( 'Read > Get Relationship By Index > Failed' );
+								var err = new Error( 'Relationship index data mismatch', state.relationship_seed, res6.data.seed );
+								if ( 'function' === typeof on_error ) {
+									on_error( err );
+								} else {
+									throw err;
+								}
 							} else {
-								console.log( 'Relationship data test passed' );
+								console.log( 'Read > Get Relationship By Index > Passed' );
 							}
+
+						}, on_complete: function( req6, res6 ) {
 
 							// Read done
 							if ( 'function' === typeof callback ) {
-								console.log( 'FINISHED READ' );
+								console.log( 'Read > Success > ' + JSON.stringify( state )  );
 								callback( state );
 							}
 
-						}, on_error: read_on_error } );
-	
-					}, on_error: read_on_error } );
+						}, on_error: function( res ) {
+							console.log( 'Read > Get Relationship By Index > Failed' );
+							finished();
+						} } );
 
-				}, on_error: read_on_error } );
+					}, on_error: function( res ) {
+						console.log( 'Read > Get Relationship By ID > Failed' );
+						finished();
+					} } );
 
-			}, on_error: read_on_error } );
+				}, on_error: function( res ) {
+					console.log( 'Read > Get Node 2 By Index > Failed' );
+					finished();
+				} } );
 
-		}, on_error: read_on_error } );
+			}, on_error: function( res ) {
+				console.log( 'Read > Get Node 2 By ID > Failed' );
+				finished();
+			} } );
 
-	}, on_error: read_on_error } );
+		}, on_error: function( res ) {
+			console.log( 'Read > Get Node 1 By Index > Failed' );
+			finished();
+		} } );
+
+	}, on_error: function( res ) {
+		console.log( 'Read > Get Node 1 By ID > Failed' );
+		finished();
+	} } );
 
 };
 
@@ -229,46 +316,65 @@ var destroy = function( state, callback ) {
 		console.log( 'Destroy test error', err_req, err_res );
 	};
 
+	var finished = function() {
+		console.log( 'Destroy > Finished' );
+	};
+
+	console.log( 'Destroy > Started' );
+
 	/* Remove Relationship By ID */
 	graphs.destroy( { datatype: 'relationship', id: state.relationship, on_success: function( req1, res1 ) {
-		
+	
+		delete state.relationship;	
+		console.log( 'Destroy > Remove Relationship By ID > Passed' );
+
 		/* Remove Node 1 By ID */
 		graphs.destroy( { datatype: 'node', id: state.node_1, on_success: function( req1, res1 ) {
 
+			delete state.node_1;				
+			console.log( 'Destroy > Remove Node 1 By ID > Passed' );
+
 			/* Remove Node 2 By ID */
 			graphs.destroy( { datatype: 'node', id: state.node_2, on_success: function( req1, res1 ) {
-		
+			
+				delete state.node_2;
+				console.log( 'Destroy > Remove Node 2 By ID > Passed' );	
+
 				// Destroy done
 				if ( 'function' === typeof callback ) {
-					console.log( 'FINISHED DESTROY' );
+					console.log( 'Destroy > Success > ' + JSON.stringify( state ) );
 					callback( state );
 				}
 
-			}, on_error: destroy_on_error } );
+			}, on_error: function( err_req, err_res ) {	
+				console.log( 'Destroy > Remove Node 2 By ID > Failed' );
+				finished();
+			} } );
 
-		}, on_error: destroy_on_error } );
+		}, on_error: function( err_req, err_res ) {	
+			console.log( 'Destroy > Remove Node 1 By ID > Failed' );
+			finished();
+		} } );
 
-	}, on_error: destroy_on_error } );
+	}, on_error: function( err_req, err_res ) {	
+		console.log( 'Destroy > Remove Relationship By ID > Failed' );
+		finished();
+	} } );
 };
 
 /* Test */
 
 var test = function( state ) {
 	create( state, function( state ) {
-		update( state, function( state ) {
-			read( state, function( state ) {
-				//destroy( state, function( state ) {
-					console.log( "TESTS PASSED", state );
-				//} );
+		read( state, function( state ) {
+			update( state, function( state ) {
+				read( state, function( state ) {
+					//destroy( state, function( state ) {
+						console.log( "FINISHED", state );
+					//} );
+				} );
 			} );
 		} );
 	} );
 }( state );
 
-
-
-/* 
-graphs.create( { datatype: 'index', id: 2, index_type: 'node', index: 'NODE_IDX', data: { seed: '3-7' }, on_success: function( req4, res4 ) {
-	console.log("MANUAL",res4);
-}, on_error: function(req,err){console.log('Err',err);}  }  );
-*/
