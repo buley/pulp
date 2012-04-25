@@ -402,11 +402,11 @@ var test = function( state ) {
 	create( state, function( state ) {
 		read( state, function( state ) {
 			update( state, function( state ) {
-				//read( state, function( state ) {
-					//destroy( state, function( state ) {
+				read( state, function( state ) {
+					destroy( state, function( state ) {
 						console.log( "FINISHED", state );
-					//} );
-				//} );
+					} );
+				} );
 			} );
 		} );
 	} );
