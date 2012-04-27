@@ -30,7 +30,7 @@ var create = function( state, callback ) {
 		state.node_1_seed = v1;
 
 		/* Index Property On Node 1 */
-		graphs.create( { datatype: 'index', id: res1.id, index_type: 'node', index: 'NODE_IDX', data: { seed: v1 }, on_success: function( req2, res2 ) {
+		graphs.create( { datatype: 'index', id: res1.id, index_type: 'node', index: 'NODE_IDX', key: 'seed', value: v1, on_success: function( req2, res2 ) {
 
 			console.log( 'Create > Index Property On Node 1 > Passed' );
 
@@ -42,7 +42,7 @@ var create = function( state, callback ) {
 				state.node_2_seed = v2;
 				
 				/* Index Property On Node 2 */
-				graphs.create( { datatype: 'index', id: res3.id, index_type: 'node', index: 'NODE_IDX', data: { seed: v2 }, on_success: function( req4, res4 ) {
+				graphs.create( { datatype: 'index', id: res3.id, index_type: 'node', index: 'NODE_IDX', key: 'seed', value: v2, on_success: function( req4, res4 ) {
 				
 					console.log( 'Create > Index Property On Node 2 > Passed' );
 
@@ -53,7 +53,7 @@ var create = function( state, callback ) {
 						console.log( 'Create > Create Relationship Between Node 1 and Node 2 > Passed' );
 ;
 						/* Index Property On Relationship */
-						graphs.create( { datatype: 'index', id: res5.id, index_type: 'relationship', index: 'RELATIONSHIP_IDX', data: { seed: state.relationship_seed }, on_success: function( req6, res6 ) {
+						graphs.create( { datatype: 'index', id: res5.id, index_type: 'relationship', index: 'RELATIONSHIP_IDX', key: 'seed', value: state.relationship_seed, on_success: function( req6, res6 ) {
 
 							// Create done
 							if ( 'function' === typeof callback ) {
@@ -67,7 +67,7 @@ var create = function( state, callback ) {
 							finished();
 						} } );
 
-					} , on_error: function() { 
+					}, on_error: function() { 
 						console.log( 'Create > Create Relationship Between Node 1 and Node 2 > Failed' );
 						finished();
 					} } );
