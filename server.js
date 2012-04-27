@@ -30,7 +30,7 @@ var create = function( state, callback ) {
 		state.node_1_seed = v1;
 
 		/* Index Property On Node 1 */
-		graphs.create( { datatype: 'index', id: res1.id, index_type: 'node', index: 'NODE_IDX', key: 'seed', value: v1, on_success: function( req2, res2 ) {
+		graphs.create( { datatype: 'index', id: res1.id, index_type: 'node', index: 'NODE_IDX', key: 'seed', value: v1, on_complete: function( req2, res2 ) {
 
 			console.log( 'Create > Index Property On Node 1 > Passed' );
 
@@ -42,7 +42,7 @@ var create = function( state, callback ) {
 				state.node_2_seed = v2;
 				
 				/* Index Property On Node 2 */
-				graphs.create( { datatype: 'index', id: res3.id, index_type: 'node', index: 'NODE_IDX', key: 'seed', value: v2, on_success: function( req4, res4 ) {
+				graphs.create( { datatype: 'index', id: res3.id, index_type: 'node', index: 'NODE_IDX', key: 'seed', value: v2, on_complete: function( req4, res4 ) {
 				
 					console.log( 'Create > Index Property On Node 2 > Passed' );
 
@@ -53,19 +53,29 @@ var create = function( state, callback ) {
 						console.log( 'Create > Create Relationship Between Node 1 and Node 2 > Passed' );
 ;
 						/* Index Property On Relationship */
-						graphs.create( { datatype: 'index', id: res5.id, index_type: 'relationship', index: 'RELATIONSHIP_IDX', key: 'seed', value: state.relationship_seed, on_success: function( req6, res6 ) {
-
-							// Create done
-							if ( 'function' === typeof callback ) {
-								console.log( 'Create > Success > ' + JSON.stringify( state ) );
-								finished();
-								callback( state );
+						graphs.create( {
+							datatype: 'index'
+							, id: res5.id
+							, index_type: 'relationship'
+							, index: 'RELATIONSHIP_IDX'
+							, key: 'seed'
+							, value: state.relationship_seed
+							, on_success: function( res6, res5 ) { 
+								console.log( 'Create > Index Property On Relationship > Passed' );
 							}
-
-						} , on_error: function() {
-							console.log( 'Create > Index Property On Relationship > Failed' );
-							finished();
-						} } );
+							, on_complete: function( req6, res6 ) {
+								// Create done
+								if ( 'function' === typeof callback ) {
+									console.log( 'Create > Success > ' + JSON.stringify( state ) );
+									finished();
+									callback( state );
+								}
+							}
+							, on_error: function() {
+								console.log( 'Create > Index Property On Relationship > Failed' );
+								finished();
+							} 
+						} );
 
 					}, on_error: function() { 
 						console.log( 'Create > Create Relationship Between Node 1 and Node 2 > Failed' );
@@ -114,26 +124,28 @@ var update = function( state, callback ) {
 	console.log( "Update > Started" );
 
 	/* Update Node 1 By Index */
-	graphs.update( { datatype: 'index', index_type: 'node', data: { seed: v3 }, reindex: true, index: 'NODE_IDX', key: 'seed', value: state.node_1_seed, on_success: function( req2, res2 ) {
+	graphs.update( { datatype: 'node', index_type: 'node', data: { seed: v3 }, reindex: true, index: 'NODE_IDX', key: 'seed', value: state.node_1_seed, on_success: function( req2, res2 ) {
 
 		console.log( 'Update > Update Node 1 By Index > Passed' );
 		state.node_1_seed = v3;
 	
-	}, on_complete: function( req2, res2 ) { 
+	//}, on_complete: function( req2, res2 ) { 
 
 		/* Update Node 1 By ID */
 		graphs.update( { datatype: 'node', id: state.node_1, data: { seed: v4 }, on_success: function( req1, res1 ) {
 
 			console.log( 'Update > Update Node 1 By ID > Passed' );
 			state.node_1_seed = v4;
-
+	
+		}, on_complete: function( req1, res1 ) { 
+			//TODO: Updating index but doing so before node itself is updated
 			/* Update Node 2 By Index */
 			graphs.update( { datatype: 'index', index_type: 'node', data: { seed: v5 }, reindex: true, index: 'NODE_IDX', key: 'seed', value: state.node_2_seed, on_success: function( req4, res4 ) {
 
 				console.log( 'Update > Update Node 2 By Index > Passed' );
 				state.node_2_seed = v5;
 				
-			}, on_complete: function( req4, res4 ) { 
+			//}, on_complete: function( req4, res4 ) { 
 
 				/* Update Node 2 By ID */
 
@@ -142,19 +154,25 @@ var update = function( state, callback ) {
 					console.log( 'Update > Update Node 2 By ID > Passed' );
 					state.node_2_seed = v6;
 
+				//}, on_complete: function( req3, res3 ) {
+
 					/* Update Relationship By Index */
 					graphs.update( { datatype: 'index', index_type: 'relationship', data: { seed: v7 }, reindex: true, index: 'RELATIONSHIP_IDX', key: 'seed', value: state.relationship_seed, on_success: function( req5, res5 ) {
 
-						console.log( 'Update > Update Relationship By Index > Passed' );
-						state.relationship_seed = v7;
+						console.log( 'Update > Update Relationship By Index > Success' );
 
 					}, on_complete: function( req5, res5 ) {
+
+						console.log( 'Update > Update Relationship By Index > Passed' );
+						state.relationship_seed = v7;
 
 						/* Update Relationship By ID */
 						graphs.update( { datatype: 'relationship', id: state.relationship, data: { seed: v8 }, on_success: function( req6, res6 ) {
 			
 							console.log( 'Update > Update Relationship By ID > Passed' );
 							state.relationship_seed = v8;
+
+						}, on_complete: function( req6, res6 ) {
 
 							// Update done
 							if ( 'function' === typeof callback ) {
@@ -224,7 +242,7 @@ var read = function( state, callback, on_error ) {
 
 		/* Get Node 1 By Index */
 		graphs.read( { datatype: 'index', index_type: 'node', index: 'NODE_IDX', key: 'seed', value: state.node_1_seed, on_success: function( req2, res2 ) {
-			
+		
 			if ( state.node_1_seed !== res2.data.seed ) {
 				console.log( 'Read > Get Node 1 By Index > Failed' );
 				var err = new Error( 'Node 1 index data mismatch', state.node_1_seed, res2.data.seed );
